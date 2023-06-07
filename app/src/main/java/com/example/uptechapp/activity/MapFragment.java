@@ -49,7 +49,8 @@ public class MapFragment extends Fragment {
             @Override
             public void onChanged(List<Emergency> emergencies) {
                 Log.d("NIKITA", "INOF");
-                Log.d("NIKITA", String.valueOf(emergencies.size()));
+                //Log.d("NIKITA", String.valueOf(emergencies.size()));
+
                 myEmergencyList.clear();
                 myEmergencyList.addAll(emergencies);
             }

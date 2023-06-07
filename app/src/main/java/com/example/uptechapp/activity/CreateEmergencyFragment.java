@@ -41,6 +41,7 @@ import com.example.uptechapp.databinding.FragmentCreateEmergencyBinding;
 import com.example.uptechapp.model.Emergency;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -61,6 +62,8 @@ public class CreateEmergencyFragment extends Fragment {
 
     private static final String TAG = "CreatingActivity";
     private Button btnChoose, btnShare;
+    Intent intent;
+    String intent1;
     private ImageView emergencyImg;
     private EditText emergencyLabel, emergencyDescription;
     private Uri uriImage;
@@ -75,7 +78,6 @@ public class CreateEmergencyFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentCreateEmergencyBinding.inflate(getLayoutInflater());
-        getLocation();
         init();
     }
 
@@ -93,7 +95,7 @@ public class CreateEmergencyFragment extends Fragment {
 
     private void init() {
 
-        btnChoose = binding.btnChoosePicture;
+//        initbtnChoose = binding.btnChoosePicture;
         btnShare = binding.btnShare;
         emergencyLabel = binding.editTextLabel;
         emergencyDescription = binding.editTextDescription;
@@ -161,8 +163,8 @@ public class CreateEmergencyFragment extends Fragment {
                                     emergencyDescription.getText().toString(),
                                     Calendar.getInstance().getTime().toString(),
                                     url,
-                                    getLatitude(),
-                                    getLongitude()
+                                    latitude,
+                                    longitude
                             );
 
                             EmergencyApiService.getInstance().postJson(emergency).enqueue(new Callback<Emergency>() {
@@ -199,66 +201,75 @@ public class CreateEmergencyFragment extends Fragment {
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uriImage));
     }
 
-    private void getLocation() {
-        locationPermissionRequest =
-                registerForActivityResult(new ActivityResultContracts
-                                .RequestMultiplePermissions(), result -> {
-                            Boolean fineLocationGranted = result.getOrDefault(
-                                    Manifest.permission.ACCESS_FINE_LOCATION, false);
-                            Boolean coarseLocationGranted = result.getOrDefault(
-                                    Manifest.permission.ACCESS_COARSE_LOCATION, false);
-                            if (fineLocationGranted != null && fineLocationGranted) {
-                                // Precise location access granted.
-                                Toast.makeText(getContext(), "Precise location access granted", Toast.LENGTH_SHORT).show();
-                            } else if (coarseLocationGranted != null && coarseLocationGranted) {
-                                //
-                                Toast.makeText(getContext(), "Only approximate location access granted.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                //
-                                Toast.makeText(getContext(), "No location access granted. Denied", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                );
-        if (!checkLoc()) {
-            locationPermissionRequest.launch(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            });
-        }
+//    private void getLocation() {
+//        locationPermissionRequest =
+//                registerForActivityResult(new ActivityResultContracts
+//                                .RequestMultiplePermissions(), result -> {
+//                            Boolean fineLocationGranted = result.getOrDefault(
+//                                    Manifest.permission.ACCESS_FINE_LOCATION, false);
+//                            Boolean coarseLocationGranted = result.getOrDefault(
+//                                    Manifest.permission.ACCESS_COARSE_LOCATION, false);
+//                            if (fineLocationGranted != null && fineLocationGranted) {
+//                                // Precise location access granted.
+//                                Toast.makeText(getContext(), "Precise location access granted", Toast.LENGTH_SHORT).show();
+//                            } else if (coarseLocationGranted != null && coarseLocationGranted) {
+//                                //
+//                                Toast.makeText(getContext(), "Only approximate location access granted.", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                //
+//                                Toast.makeText(getContext(), "No location access granted. Denied", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }
+//                );
+//        if (!checkLoc()) {
+//            locationPermissionRequest.launch(new String[]{
+//                    Manifest.permission.ACCESS_FINE_LOCATION,
+//                    Manifest.permission.ACCESS_COARSE_LOCATION
+//            });
+//        }
+//
+//        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+//
+//        checkLoc();
+//
+//        if (!checkLoc()) {
+//            return;
+//        }
+//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return;
+//        }
+//        fusedLocationClient.getLastLocation()
+//                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+//                    @Override
+//                    public void onSuccess(Location location) {
+//                        // Gt last known location. In some rare situations this can be null.o
+//                        if (location != null) {
+//                            latitude = location.getLatitude();
+//                            longitude = location.getLongitude();
+//                        }
+//                    }
+//                });
+//    }
+//
+//    boolean checkLoc(){
+//        return ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+//                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+//    }
+//
+//    public static Double getLongitude() {
+//        return longitude;
+//    }
+//
+//
+//    public static Double getLatitude() {
+//        return latitude;
+//    }
 
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
-        checkLoc();
-
-        if (!checkLoc()) {
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Gt last known location. In some rare situations this can be null.o
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                    }
-                });
+    public static void setLongitude(Double longitude) {
+        CreateEmergencyFragment.longitude = longitude;
     }
 
-    boolean checkLoc(){
-        return ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    public static Double getLongitude() {
-        return longitude;
-    }
-
-    public static Double getLatitude() {
-        return latitude;
+    public static void setLatitude(Double latitude) {
+        CreateEmergencyFragment.latitude = latitude;
     }
 }

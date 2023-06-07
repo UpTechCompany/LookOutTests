@@ -1,20 +1,51 @@
 package com.example.uptechapp.dao;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
+import com.example.uptechapp.R;
+import com.example.uptechapp.activity.CreateDialogListener;
+import com.example.uptechapp.activity.CreateEmergencyFragment;
+import com.example.uptechapp.activity.EmergencyFeedFragment;
+import com.example.uptechapp.activity.MainActivityFragments;
+import com.example.uptechapp.activity.MapFragment;
 import com.example.uptechapp.model.Emergency;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -24,7 +55,9 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
     private static final String TAG = "MapService";
     private final Context context;
     private LocationManager locationManager;
+
     private LifecycleOwner lifecycleOwner;
+    private static final int PICK_IMAGE_REQUEST = 1;
     private List<Emergency> myEmergencyList;
 
 
@@ -45,8 +78,42 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
 
     @Override
     public void onMapLongClick(@NonNull LatLng latLng) {
-        Toast.makeText(context, "LONG " + latLng.latitude + " "
-                + latLng.longitude, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "" + latLng.latitude + " "
+//                + latLng.longitude, Toast.LENGTH_SHORT).show();
+//        FragmentManager fragmentManager = googlemap.getChildFragmentManager().findFragmentById(R.id.fragment_container);
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        Fragment fragment = new CreateEmergencyFragment();
+//        CreateEmergencyFragment.setLatitude(latLng.latitude);
+//        CreateEmergencyFragment.setLongitude(latLng.longitude);
+//        fragmentTransaction.add(R.id.fragment_container, fragment);
+//        fragmentTransaction.commit();
+        Dialog dialog = new Dialog(context);
+
+        dialog.setContentView(R.layout.fragment_create_emergency);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        dialog.show();
+        TextView tv_label = dialog.getWindow().findViewById(R.id.editTextLabel);
+        TextView tv_info = dialog.getWindow().findViewById(R.id.editTextDescription);
+
+        String info = tv_info.getText().toString();
+        String label = tv_label.getText().toString();
+        Button btnChoosePicture = dialog.findViewById(R.id.btnChoosePicture);
+        Button share = dialog.findViewById(R.id.btnShare);
+        btnChoosePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                String in = intent.toString();
+
+            }
+
+
+        });
     }
 
     @Override
@@ -54,18 +121,19 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
         Log.d(TAG, "onMapReady: READY");
         googleMap.setOnMapClickListener(this);
         googleMap.setOnMapLongClickListener(this);
+//        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude()), 15));
+//        googleMap.addMarker(new MarkerOptions().position(new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude())).title("Текущее местоположение"));
         List<Emergency> myEmergencyList = MyViewModel.getInstance().getEmergencyLiveData().getValue();
-        Log.i("qq", "myEmergencyList" + myEmergencyList.toString());
+        //Log.i("qq", "myEmergencyList" + myEmergencyList.toString());
 
         Log.d(TAG, "onMapReady: check before load emergencies");
 
-        Log.i(TAG, "OnSuccess: " + myEmergencyList.toString());
-        for (Emergency emergency: myEmergencyList) {
-            emergency.setLocation(emergency.getLattitude(), emergency.getLongitude());
-            Log.i(TAG, "emergency" + emergency.toString());
-            googleMap.addMarker(new MarkerOptions().position(emergency.getLocation()).title(emergency.getTitle()));
-            Log.d(TAG, "OnSuccess: add emergency");
-        }
+        //assert myEmergencyList != null;
+//        for (Emergency emergency: myEmergencyList) {
+//            emergency.setLocation(emergency.getLattitude(), emergency.getLongitude());
+//            googleMap.addMarker(new MarkerOptions().position(emergency.getLocation()).title(emergency.getTitle()));
+//            Log.d(TAG, "OnSuccess: add emergency");
+//        }
 
 //        googleMap.setOnMarkerClickListener(marker -> {
 //            Log.d(TAG, "OnSuccess: markerclicklistener");
@@ -98,10 +166,14 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
             @Override
             public void onChanged(List<Emergency> emergencies) {
                 Log.d("NIKITA", "INOF");
-                Log.d("NIKITA", String.valueOf(emergencies.size()));
+                //Log.d("NIKITA", String.valueOf(emergencies.size()));
+                //Move the camera to the user's location and zoom in!
+                //googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(CreateEmergencyFragment.getLatitude(), CreateEmergencyFragment.getLongitude()), 12.0f));
                 myEmergencyList.clear();
                 myEmergencyList.addAll(emergencies);
             }
+
+
         };
         MyViewModel.getInstance().getEmergencyLiveData().observe(lifecycleOwner, myObserver);
         Log.d(TAG, "onMapReady: proehali");

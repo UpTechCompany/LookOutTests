@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_create"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -26,20 +27,21 @@
     <EditText
         android:id="@+id/editTextLabel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="53dp"
+        android:layout_marginTop="32dp"
+        android:drawableStart="@drawable/ic_label"
+        android:drawablePadding="16dp"
+        android:drawableTint="@color/white"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:drawableStart="@drawable/ic_label"
-        android:drawableTint="@color/white"
-        android:drawablePadding="16dp"
-        android:textColor="@color/white"
-        android:hint="Write title"
+
+        android:text='Название'
+        android:textAlignment="gravity"
+        android:textColor="@color/black"
         android:textColorHint="@color/white"
-        android:ems="10"
-        android:inputType="text"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info" />
@@ -56,40 +58,46 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextLabel"/>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnChoosePicture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="70dp"
         android:layout_marginTop="20dp"
         android:layout_marginRight="70dp"
-        android:layout_marginLeft="70dp"
+        android:background="@drawable/round_view"
+        android:backgroundTint="#FF5D57"
+
         android:text="Choose Picture"
+        android:textColor="#FFFFFF"
+
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/emergencyImg"/>
+
 
     <EditText
         android:id="@+id/editTextDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:drawableStart="@drawable/ic_label"
+        android:drawablePadding="16dp"
+        android:drawableTint="@color/white"
+        android:ems="10"
+        android:hint="Write description"
+        android:inputType="text"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:drawableStart="@drawable/ic_label"
-        android:drawableTint="@color/white"
-        android:drawablePadding="16dp"
-        android:textColor="@color/white"
-        android:hint="Write description"
+        android:text="Описание"
+        android:textColor="@color/black"
         android:textColorHint="@color/white"
-        android:ems="10"
-        android:inputType="text"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnChoosePicture"/>
+        app:layout_constraintTop_toBottomOf="@+id/btnChoosePicture" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnShare"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -97,7 +105,9 @@
         android:layout_marginLeft="70dp"
         android:layout_marginRight="70dp"
         android:text="Share Emergency"
+        android:textColor="@color/white"
         android:background="@drawable/round_view"
+        android:backgroundTint="#FF5D57"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextDescription"/>
