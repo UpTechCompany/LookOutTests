@@ -1,13 +1,17 @@
 package com.example.uptechapp.activity;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,7 +28,6 @@ import com.example.uptechapp.dao.EmergencyAdapter;
 import com.example.uptechapp.dao.MyViewModel;
 import com.example.uptechapp.databinding.FragmentEmergencyFeedBinding;
 import com.example.uptechapp.model.Emergency;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +40,49 @@ public class EmergencyFeedFragment extends Fragment {
     private Dialog progressBar;
     private TextView dialogText;
 
+    private int learn = 0;
+
     List<Emergency> myEmergencyList;
     EmergencyAdapter adapter;
+
+    public Dialog Dialog(@Nullable Bundle savedInstanceState) {
+        String title = "Обучение";
+        String message = "Хотели бы вы пройти обучение по использованию приложения?";
+        String button1String = "Да";
+        String button2String = "Нет";
+        final int[] par = {0};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);  // заголовок
+        builder.setMessage(message); // сообщение
+        Dialog dialog1 = new Dialog(getContext());
+        dialog1.setContentView(R.layout.learning1);
+        dialog1.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        ImageView imageView = dialog1.getWindow().findViewById(R.id.ViewLearn);
+        builder.setPositiveButton(button1String, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        builder.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        });
+        builder.setCancelable(true);
+
+        return builder.show();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentEmergencyFeedBinding.inflate(getLayoutInflater());
-
+        if (learn == 0) {
+            learn = 1;
+            Dialog(null);
+        }
         init();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());

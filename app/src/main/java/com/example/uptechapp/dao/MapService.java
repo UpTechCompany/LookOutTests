@@ -2,11 +2,14 @@ package com.example.uptechapp.dao;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
@@ -24,6 +27,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentContainer;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
@@ -32,11 +37,11 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.example.uptechapp.R;
-import com.example.uptechapp.activity.CreateDialogListener;
 import com.example.uptechapp.activity.CreateEmergencyFragment;
 import com.example.uptechapp.activity.EmergencyFeedFragment;
 import com.example.uptechapp.activity.MainActivityFragments;
 import com.example.uptechapp.activity.MapFragment;
+import com.example.uptechapp.activity.SplashActivity;
 import com.example.uptechapp.model.Emergency;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,7 +52,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListener,
         GoogleMap.OnMapLongClickListener{
@@ -80,12 +87,13 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
     public void onMapLongClick(@NonNull LatLng latLng) {
 //        Toast.makeText(context, "" + latLng.latitude + " "
 //                + latLng.longitude, Toast.LENGTH_SHORT).show();
-//        FragmentManager fragmentManager = googlemap.getChildFragmentManager().findFragmentById(R.id.fragment_container);
+//
+//        FragmentManager fragmentManager = getSupportedManager().findFragmentById(R.id.fragmentContainerView);
 //        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 //        Fragment fragment = new CreateEmergencyFragment();
 //        CreateEmergencyFragment.setLatitude(latLng.latitude);
 //        CreateEmergencyFragment.setLongitude(latLng.longitude);
-//        fragmentTransaction.add(R.id.fragment_container, fragment);
+//        fragmentTransaction.add(R.id.fragmentContainerView, fragment);
 //        fragmentTransaction.commit();
         Dialog dialog = new Dialog(context);
 
@@ -95,25 +103,35 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         dialog.show();
-        TextView tv_label = dialog.getWindow().findViewById(R.id.editTextLabel);
-        TextView tv_info = dialog.getWindow().findViewById(R.id.editTextDescription);
+//        Log.d("Nike", "Ok");
+//        Dialog dialog = new Dialog(context);
+//        dialog.setContentView(R.layout.fragment_create_emergency);
+//        dialog.show();
+//        Log.d("Nike", "Ok");
+//        FragmentContainerView fragmentContainerView = dialog.findViewById(R.id.fragmentContainerView);
+//        CreateEmergencyFragment createEmergencyFragment = new CreateEmergencyFragment();
+//        Log.d("Nike", "Ok");
+////        FragmentManager fragmentManager = createEmergencyFragment.getChildFragmentManager();
+////        Log.d("Nike", "Ok");
+////        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+////        Log.d("Nike", "Ok");
+////        fragmentTransaction.replace(fragmentContainerView.getId(), createEmergencyFragment);
+////        fragmentTransaction.addToBackStack(null);
+////        Log.d("Nike", "Ok");
+////        fragmentTransaction.commit();
+////        Log.d("Nike", "Ok");
 
-        String info = tv_info.getText().toString();
-        String label = tv_label.getText().toString();
-        Button btnChoosePicture = dialog.findViewById(R.id.btnChoosePicture);
-        Button share = dialog.findViewById(R.id.btnShare);
-        btnChoosePicture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                String in = intent.toString();
-
-            }
 
 
-        });
+
+
+
+
+
+
+
+
+
     }
 
     @Override

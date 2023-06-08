@@ -2,17 +2,12 @@ package com.example.uptechapp.activity;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -21,30 +16,20 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.uptechapp.R;
 import com.example.uptechapp.api.EmergencyApiService;
 import com.example.uptechapp.databinding.FragmentCreateEmergencyBinding;
 import com.example.uptechapp.model.Emergency;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -56,7 +41,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateEmergencyFragment extends Fragment {
+public class CreateEmergencyFragment extends Fragment implements CreateEmergencyFragment2 {
 
     private FragmentCreateEmergencyBinding binding;
 
@@ -269,7 +254,15 @@ public class CreateEmergencyFragment extends Fragment {
         CreateEmergencyFragment.longitude = longitude;
     }
 
+
     public static void setLatitude(Double latitude) {
         CreateEmergencyFragment.latitude = latitude;
+    }
+
+    @Override
+    public void Create(@NonNull LatLng latLng) {
+        CreateEmergencyFragment.latitude = latLng.latitude;
+        CreateEmergencyFragment.longitude = latLng.longitude;
+        onCreate(null);
     }
 }

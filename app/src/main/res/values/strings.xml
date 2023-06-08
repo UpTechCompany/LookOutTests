@@ -15,5 +15,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="create">Создание записи</string>
+    <string name="create_lable">Название</string>
+    <string name="create_create">Создание записи</string>
 
 </resources>
