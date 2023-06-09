@@ -250,4 +250,13 @@ public class CreateEmergencyFragment extends Fragment {
 //        return latitude;
 //    }
 
+    public static void setLongitude(Double longitude) {
+        CreateEmergencyFragment.longitude = longitude;
+    }
+
+
+    public static void setLatitude(Double latitude) {
+        CreateEmergencyFragment.latitude = latitude;
+    }
+
 }

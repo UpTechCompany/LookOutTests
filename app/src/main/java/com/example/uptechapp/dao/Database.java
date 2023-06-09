@@ -29,7 +29,7 @@ public class Database {
             EmergencyApiService.getInstance().getEmergency().enqueue(new Callback<List<Emergency>>() {
                 @Override
                 public void onResponse(@NonNull Call<List<Emergency>> call, @NonNull Response<List<Emergency>> response) {
-                    EMERGENCIES_LIST.addAll(response.body());
+                    //EMERGENCIES_LIST.addAll(response.body());
                     MyViewModel.getInstance().getEmergencyLiveData().postValue(EMERGENCIES_LIST);
                     Log.d("MapService", "1loadEmergencies complete: " + EMERGENCIES_LIST.toString());
                 }

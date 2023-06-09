@@ -6,7 +6,8 @@
     android:background="@drawable/round_view"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.fragment.app.FragmentContainerView
+
+<androidx.fragment.app.FragmentContainerView
         android:id="@+id/mainFragmentContainer"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"

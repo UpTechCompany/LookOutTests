@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.SplashActivity"
-    android:background="@color/dark_gray_figma">
+    android:background="@color/white"
+    tools:context=".activity.SplashActivity">
 
     <TextView
         android:id="@+id/textView"
@@ -14,7 +14,7 @@
         android:layout_marginTop="328dp"
         android:gravity="center"
         android:text="LOOKOUT"
-        android:textColor="@color/purple_figma"
+        android:textColor="#5D57FF"
         android:textSize="60sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"

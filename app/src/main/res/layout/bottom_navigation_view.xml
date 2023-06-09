@@ -8,12 +8,12 @@
         android:id="@+id/bottomNavBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/round_view"
         android:elevation="5dp"
-        app:itemIconTint="@color/design_default_color_primary"
-        app:itemTextColor="@color/design_default_color_primary"
+        app:itemIconTint="#5D57FF"
+        app:itemTextColor="#5D57FF"
         app:menu="@menu/bottom_menu" />
 
 </LinearLayout>

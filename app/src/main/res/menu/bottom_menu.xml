@@ -4,19 +4,12 @@
     <item
         android:id="@+id/fragment_emergency_feed"
         android:icon="@drawable/news_feed"
-        android:title="News"
-        />
-
-    <item
-        android:id="@+id/fragment_create"
-        android:icon="@drawable/create_news"
-        android:title="Create"
-
+        android:title="@string/news"
         />
 
     <item
         android:id="@+id/fragment_map"
         android:icon="@drawable/map"
-        android:title="Map"/>
+        android:title="@string/map"/>
 
 </menu>
