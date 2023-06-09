@@ -28,6 +28,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="load" translatable="true">Loading</string>
+    <string name="choose_picture" translatable="true">Choose Picture</string>
 
 
 </resources>

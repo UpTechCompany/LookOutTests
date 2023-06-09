@@ -33,6 +33,7 @@ public class MainActivityFragments extends AppCompatActivity {
         setContentView(binding.getRoot());
         init();
 
+
     }
 
 
@@ -45,7 +46,7 @@ public class MainActivityFragments extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 navController.navigate(item.getItemId());
-                return false;
+                return true;
             }
         });
     }

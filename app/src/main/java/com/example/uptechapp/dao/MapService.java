@@ -1,83 +1,44 @@
 package com.example.uptechapp.dao;
 
-import static android.app.Activity.RESULT_OK;
-
-import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentContainer;
-import androidx.fragment.app.FragmentContainerView;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
-import com.bumptech.glide.Glide;
 import com.example.uptechapp.R;
-import com.example.uptechapp.activity.CreateEmergencyFragment;
-import com.example.uptechapp.activity.EmergencyFeedFragment;
-import com.example.uptechapp.activity.MainActivityFragments;
-import com.example.uptechapp.activity.MapFragment;
-import com.example.uptechapp.activity.SplashActivity;
 import com.example.uptechapp.api.EmergencyApiService;
-import com.example.uptechapp.api.PickImage;
-import com.example.uptechapp.databinding.FragmentCreateEmergencyBinding;
 import com.example.uptechapp.model.Emergency;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -95,6 +56,8 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
     private static final int PICK_IMAGE_REQUEST = 1;
     private List<Emergency> myEmergencyList;
     private Uri uriImage;
+    private boolean isButtonClicked = false;
+    private static final long BUTTON_CLICK_DELAY = 5000;
     private StorageReference storageReference;
     private ActivityResultLauncher<String> mGetContent;
 
@@ -123,16 +86,6 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
 
     @Override
     public void onMapLongClick(@NonNull LatLng latLng) {
-//        Toast.makeText(context, "" + latLng.latitude + " "
-//                + latLng.longitude, Toast.LENGTH_SHORT).show();
-//
-//        FragmentManager fragmentManager = getSupportedManager().findFragmentById(R.id.fragmentContainerView);
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        Fragment fragment = new CreateEmergencyFragment();
-//        CreateEmergencyFragment.setLatitude(latLng.latitude);
-//        CreateEmergencyFragment.setLongitude(latLng.longitude);
-//        fragmentTransaction.add(R.id.fragmentContainerView, fragment);
-//        fragmentTransaction.commit();
 
         Dialog dialog = new Dialog(context);
 
@@ -161,24 +114,6 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
                 shareEmergency();
             }
         });
-
-//        Log.d("Nike", "Ok");
-//        Dialog dialog = new Dialog(context);
-//        dialog.setContentView(R.layout.fragment_create_emergency);
-//        dialog.show();
-//        Log.d("Nike", "Ok");
-//        FragmentContainerView fragmentContainerView = dialog.findViewById(R.id.fragmentContainerView);
-//        CreateEmergencyFragment createEmergencyFragment = new CreateEmergencyFragment();
-//        Log.d("Nike", "Ok");
-////        FragmentManager fragmentManager = createEmergencyFragment.getChildFragmentManager();
-////        Log.d("Nike", "Ok");
-////        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-////        Log.d("Nike", "Ok");
-////        fragmentTransaction.replace(fragmentContainerView.getId(), createEmergencyFragment);
-////        fragmentTransaction.addToBackStack(null);
-////        Log.d("Nike", "Ok");
-////        fragmentTransaction.commit();
-////        Log.d("Nike", "Ok");
 
     }
 

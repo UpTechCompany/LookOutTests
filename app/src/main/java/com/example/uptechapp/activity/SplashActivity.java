@@ -34,6 +34,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+
         new Thread(() -> {
             updateLocale();
             try {
@@ -75,11 +76,7 @@ public class SplashActivity extends AppCompatActivity {
         configuration.setLocale(locale);
         configuration.setLayoutDirection(locale);
         getResources().updateConfiguration(configuration, getResources().getDisplayMetrics());
-//        switch (language){
-//            case ("en"){
-//
-//            }
-//        }
+
     }
 
     public static String getLanguage() {

@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UptechApp"
         android:usesCleartextTraffic="true"
+        android:configChanges="uiMode"
         tools:targetApi="31">
 
         <!--
@@ -35,18 +36,6 @@
 
         <activity
             android:name=".activity.MainActivityFragments"
-            android:exported="false" />
-        <activity
-            android:name=".activity.CreateActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.MapActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.MainActivity"
             android:exported="false" />
         <activity
             android:name=".activity.SplashActivity"

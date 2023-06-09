@@ -28,6 +28,7 @@
     <string name="yes" translatable="true">Да</string>
     <string name="no" translatable="true">Нет</string>
     <string name="load" translatable="true">Загрузка</string>
+    <string name="choose_picture" translatable="true">Выберите картинку</string>
 
 
 </resources>
