@@ -56,11 +56,11 @@ public class EmergencyFeedFragment extends Fragment {
         builder.setTitle(title);  // заголовок
         builder.setMessage(message); // сообщение
         Dialog dialog1 = new Dialog(getContext());
-        dialog1.setContentView(R.layout.learning1);
+//        dialog1.setContentView(R.layout.learning1);
         dialog1.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        ImageView imageView = dialog1.getWindow().findViewById(R.id.ViewLearn);
+//        ImageView imageView = dialog1.getWindow().findViewById(R.id.ViewLearn);
         builder.setPositiveButton(button1String, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 

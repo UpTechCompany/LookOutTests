@@ -41,7 +41,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateEmergencyFragment extends Fragment implements CreateEmergencyFragment2 {
+public class CreateEmergencyFragment extends Fragment {
 
     private FragmentCreateEmergencyBinding binding;
 
@@ -250,19 +250,4 @@ public class CreateEmergencyFragment extends Fragment implements CreateEmergency
 //        return latitude;
 //    }
 
-    public static void setLongitude(Double longitude) {
-        CreateEmergencyFragment.longitude = longitude;
-    }
-
-
-    public static void setLatitude(Double latitude) {
-        CreateEmergencyFragment.latitude = latitude;
-    }
-
-    @Override
-    public void Create(@NonNull LatLng latLng) {
-        CreateEmergencyFragment.latitude = latLng.latitude;
-        CreateEmergencyFragment.longitude = latLng.longitude;
-        onCreate(null);
-    }
 }

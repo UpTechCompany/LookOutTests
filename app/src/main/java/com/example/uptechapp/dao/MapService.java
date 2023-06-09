@@ -2,30 +2,44 @@ package com.example.uptechapp.dao;
 
 import static android.app.Activity.RESULT_OK;
 
+import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
+import android.app.Fragment;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentContainer;
 import androidx.fragment.app.FragmentContainerView;
@@ -33,6 +47,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
@@ -42,6 +57,9 @@ import com.example.uptechapp.activity.EmergencyFeedFragment;
 import com.example.uptechapp.activity.MainActivityFragments;
 import com.example.uptechapp.activity.MapFragment;
 import com.example.uptechapp.activity.SplashActivity;
+import com.example.uptechapp.api.EmergencyApiService;
+import com.example.uptechapp.api.PickImage;
+import com.example.uptechapp.databinding.FragmentCreateEmergencyBinding;
 import com.example.uptechapp.model.Emergency;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,12 +67,21 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListener,
         GoogleMap.OnMapLongClickListener{
@@ -64,16 +91,27 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
     private LocationManager locationManager;
 
     private LifecycleOwner lifecycleOwner;
+    private Activity activity;
     private static final int PICK_IMAGE_REQUEST = 1;
     private List<Emergency> myEmergencyList;
+    private Uri uriImage;
+    private StorageReference storageReference;
+    private ActivityResultLauncher<String> mGetContent;
 
+    private TextView editTextLabel;
+    private Button btnChoose;
+    private TextView editTextDesc;
+    private Button btnShare;
+    private ImageView emergencyImg;
 
-
-    public MapService(Context context, LifecycleOwner lifecycleOwner) {
+    public MapService(Context context, LifecycleOwner lifecycleOwner, Activity activity, ActivityResultLauncher<String> mGetContent) {
         this.context = context;
         this.lifecycleOwner = lifecycleOwner;
         myEmergencyList = MyViewModel.getInstance().getEmergencyLiveData().getValue();
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        this.activity = activity;
+        storageReference = FirebaseStorage.getInstance().getReference("Emergency");
+        this.mGetContent = mGetContent;
     }
 
 
@@ -95,6 +133,7 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
 //        CreateEmergencyFragment.setLongitude(latLng.longitude);
 //        fragmentTransaction.add(R.id.fragmentContainerView, fragment);
 //        fragmentTransaction.commit();
+
         Dialog dialog = new Dialog(context);
 
         dialog.setContentView(R.layout.fragment_create_emergency);
@@ -103,6 +142,26 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         dialog.show();
+
+        editTextLabel = dialog.getWindow().findViewById(R.id.editTextLabel);
+        btnChoose = dialog.getWindow().findViewById(R.id.btnChoosePicture);
+        editTextDesc = dialog.getWindow().findViewById(R.id.editTextDescription);
+        btnShare = dialog.getWindow().findViewById(R.id.btnShare);
+        emergencyImg = dialog.getWindow().findViewById(R.id.emergencyImg);
+        btnChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileChooser();
+            }
+        });
+
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareEmergency();
+            }
+        });
+
 //        Log.d("Nike", "Ok");
 //        Dialog dialog = new Dialog(context);
 //        dialog.setContentView(R.layout.fragment_create_emergency);
@@ -121,18 +180,81 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
 ////        fragmentTransaction.commit();
 ////        Log.d("Nike", "Ok");
 
-
-
-
-
-
-
-
-
-
-
-
     }
+
+    private void openFileChooser() {
+        mGetContent.launch("image/*");
+    }
+
+    public void setImage(Uri uri) {
+        uriImage = uri;
+        emergencyImg.setImageURI(uriImage);
+    }
+
+    private String getFileExtension(Uri uriImage) {
+        ContentResolver contentResolver = activity.getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uriImage));
+    }
+
+    private void shareEmergency() {
+        if (uriImage != null) {
+
+            int id = 1;
+
+            StorageReference fileReference = storageReference.child(String.valueOf(id) + "/Photo." + getFileExtension(uriImage));
+
+            fileReference.putFile(uriImage).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Uri downloadUri = uri;
+
+                            String url = downloadUri.toString();
+                            String[] time = Calendar.getInstance().getTime().toString().split(" ");
+                            Log.i("time", "Time" + Arrays.toString(time));
+
+                            Emergency emergency = new Emergency(
+                                    "-1",
+                                    editTextLabel.getText().toString(),
+                                    editTextDesc.getText().toString(),
+                                    Calendar.getInstance().getTime().toString(),
+                                    url,
+                                    11,
+                                    22
+                            );
+
+                            EmergencyApiService.getInstance().postJson(emergency).enqueue(new Callback<Emergency>() {
+                                @Override
+                                public void onResponse(@NonNull Call<Emergency> call, @NonNull Response<Emergency> response) {
+                                    Log.i(TAG, "Response - " + call.toString());
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull Call<Emergency> call, @NonNull Throwable t) {
+                                    Log.i(TAG, "FAIL - " + t.getMessage());
+                                }
+                            });
+
+                        }
+                    });
+                    Navigation.findNavController(activity, R.id.mainFragmentContainer).navigate(R.id.fragment_emergency_feed);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(context, "File was not selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
