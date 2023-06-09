@@ -1,0 +1,907 @@
+Index: app/src/main/res/layout/activity_main_fragments.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:background=\"@drawable/round_view\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\">\n\n    <androidx.fragment.app.FragmentContainerView\n        android:id=\"@+id/mainFragmentContainer\"\n        android:name=\"androidx.navigation.fragment.NavHostFragment\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"match_parent\"\n        app:navGraph=\"@navigation/nav_graph\"\n        app:defaultNavHost=\"true\"/>\n\n\n\n    <com.google.android.material.bottomnavigation.BottomNavigationView\n        android:id=\"@+id/navigation\"\n        android:layout_width=\"350dp\"\n        android:layout_height=\"50dp\"\n        app:layout_constraintBottom_toBottomOf=\"parent\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintHorizontal_bias=\"0.5\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"parent\"\n        app:layout_constraintVertical_bias=\"0.948\"\n        android:background=\"@drawable/round_view\"\n        app:menu=\"@menu/bottom_menu\"/>\n\n\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_main_fragments.xml b/app/src/main/res/layout/activity_main_fragments.xml
+--- a/app/src/main/res/layout/activity_main_fragments.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/layout/activity_main_fragments.xml	(date 1686298348558)
+@@ -6,7 +6,8 @@
+     android:background="@drawable/round_view"
+     xmlns:app="http://schemas.android.com/apk/res-auto">
+ 
+-    <androidx.fragment.app.FragmentContainerView
++
++<androidx.fragment.app.FragmentContainerView
+         android:id="@+id/mainFragmentContainer"
+         android:name="androidx.navigation.fragment.NavHostFragment"
+         android:layout_width="match_parent"
+Index: app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.uptechapp.activity;\n\nimport android.app.AlertDialog;\nimport android.app.Dialog;\nimport android.content.DialogInterface;\nimport android.content.SharedPreferences;\nimport android.graphics.Color;\nimport android.graphics.drawable.ColorDrawable;\nimport android.os.Bundle;\nimport android.preference.PreferenceManager;\nimport android.view.LayoutInflater;\nimport android.view.View;\nimport android.view.ViewGroup;\nimport android.widget.ImageView;\nimport android.widget.TextView;\n\nimport androidx.annotation.NonNull;\nimport androidx.annotation.Nullable;\nimport androidx.fragment.app.Fragment;\nimport androidx.lifecycle.Observer;\nimport androidx.recyclerview.widget.LinearLayoutManager;\nimport androidx.recyclerview.widget.RecyclerView;\n\nimport com.example.uptechapp.R;\nimport com.example.uptechapp.api.CompleteListener;\nimport com.example.uptechapp.dao.Database;\nimport com.example.uptechapp.dao.EmergencyAdapter;\nimport com.example.uptechapp.dao.MyViewModel;\nimport com.example.uptechapp.databinding.FragmentEmergencyFeedBinding;\nimport com.example.uptechapp.model.Emergency;\n\nimport java.util.ArrayList;\nimport java.util.List;\n\npublic class EmergencyFeedFragment extends Fragment {\n\n    private FragmentEmergencyFeedBinding binding;\n\n    private RecyclerView emergencyFeed;\n    private Dialog progressBar;\n    private TextView dialogText;\n\n    private int learn = 0;\n\n    List<Emergency> myEmergencyList;\n    EmergencyAdapter adapter;\n\n    public Dialog Dialog(@Nullable Bundle savedInstanceState) {\n        String title = \"Обучение\";\n        String message = \"Хотели бы вы пройти обучение по использованию приложения?\";\n        String button1String = \"Да\";\n        String button2String = \"Нет\";\n        final int[] par = {0};\n\n        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());\n        builder.setTitle(title);  // заголовок\n        builder.setMessage(message); // сообщение\n        Dialog dialog1 = new Dialog(getContext());\n        dialog1.setContentView(R.layout.learning1);\n        dialog1.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,\n                ViewGroup.LayoutParams.WRAP_CONTENT);\n        dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));\n        ImageView imageView = dialog1.getWindow().findViewById(R.id.ViewLearn);\n        builder.setPositiveButton(button1String, new DialogInterface.OnClickListener() {\n            public void onClick(DialogInterface dialog, int id) {\n\n            }\n        });\n        builder.setNegativeButton(button2String, new DialogInterface.OnClickListener() {\n            public void onClick(DialogInterface dialog, int id) {\n            }\n        });\n        builder.setCancelable(true);\n\n        return builder.show();\n    }\n\n    @Override\n    public void onCreate(@Nullable Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        binding = FragmentEmergencyFeedBinding.inflate(getLayoutInflater());\n        if (learn == 0) {\n            learn = 1;\n            Dialog(null);\n        }\n        init();\n\n        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());\n        layoutManager.setOrientation(RecyclerView.VERTICAL);\n        emergencyFeed.setLayoutManager(layoutManager);\n\n        myEmergencyList = new ArrayList<Emergency>();\n        adapter = new EmergencyAdapter(myEmergencyList, getContext());\n\n        emergencyFeed.setAdapter(adapter);\n\n        Database.loadEmergencies(new CompleteListener() {\n            @Override\n            public void OnSuccess() {\n                progressBar.dismiss();\n            }\n\n            @Override\n            public void OnFailure() {\n                progressBar.dismiss();\n\n            }\n        });\n\n        final Observer<List<Emergency>> myObserver = new Observer<List<Emergency>>() {\n            @Override\n            public void onChanged(List<Emergency> emergencies) {\n                myEmergencyList.clear();\n                myEmergencyList.addAll(emergencies);\n                adapter.notifyDataSetChanged();\n            }\n        };\n        MyViewModel.getInstance().getEmergencyLiveData().observe(this, myObserver);\n    }\n\n    @Nullable\n    @Override\n    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {\n        return binding.getRoot();\n    }\n\n    @Override\n    public void onDestroy() {\n        super.onDestroy();\n        binding = null;\n    }\n\n    private void init() {\n\n        emergencyFeed = binding.emergencyFeed;\n\n        progressBar = new Dialog(getContext());\n        progressBar.setContentView(R.layout.dialog_layout);\n        progressBar.setCancelable(false);\n        progressBar.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);\n\n        dialogText = progressBar.findViewById(R.id.dialogText);\n        dialogText.setText(\"Loading\");\n\n        progressBar.show();\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java b/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java
+--- a/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java	(date 1686306623654)
+@@ -1,5 +1,6 @@
+ package com.example.uptechapp.activity;
+ 
++import android.annotation.SuppressLint;
+ import android.app.AlertDialog;
+ import android.app.Dialog;
+ import android.content.DialogInterface;
+@@ -11,12 +12,13 @@
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+-import android.widget.ImageView;
+ import android.widget.TextView;
+ 
+ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ import androidx.fragment.app.Fragment;
++import androidx.fragment.app.FragmentManager;
++import androidx.fragment.app.FragmentTransaction;
+ import androidx.lifecycle.Observer;
+ import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.recyclerview.widget.RecyclerView;
+@@ -37,37 +39,44 @@
+     private FragmentEmergencyFeedBinding binding;
+ 
+     private RecyclerView emergencyFeed;
++
+     private Dialog progressBar;
+     private TextView dialogText;
+ 
+-    private int learn = 0;
++    private long learn = 0;
+ 
+     List<Emergency> myEmergencyList;
+     EmergencyAdapter adapter;
+ 
+     public Dialog Dialog(@Nullable Bundle savedInstanceState) {
+-        String title = "Обучение";
+-        String message = "Хотели бы вы пройти обучение по использованию приложения?";
+-        String button1String = "Да";
+-        String button2String = "Нет";
++        String title = getResources().getString(R.string.training);
++        String message = getResources().getString(R.string.massage);
++        String button1String = getResources().getString(R.string.yes);
++        String button2String = getResources().getString(R.string.no);
+         final int[] par = {0};
+ 
+         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+         builder.setTitle(title);  // заголовок
+         builder.setMessage(message); // сообщение
+         Dialog dialog1 = new Dialog(getContext());
+-        dialog1.setContentView(R.layout.learning1);
++        dialog1.setContentView(R.layout.learning);
+         dialog1.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                 ViewGroup.LayoutParams.WRAP_CONTENT);
+         dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+-        ImageView imageView = dialog1.getWindow().findViewById(R.id.ViewLearn);
+         builder.setPositiveButton(button1String, new DialogInterface.OnClickListener() {
+             public void onClick(DialogInterface dialog, int id) {
+-
++                LearnFragment learnFragment = new LearnFragment();
++                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
++                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
++                fragmentTransaction.replace(R.id.mainFragmentContainer, learnFragment);
++                fragmentTransaction.addToBackStack(null);
++                requireActivity().findViewById(R.id.navigation).setVisibility(View.GONE);
++                fragmentTransaction.commit();
+             }
+         });
+         builder.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+             public void onClick(DialogInterface dialog, int id) {
++
+             }
+         });
+         builder.setCancelable(true);
+@@ -75,13 +84,17 @@
+         return builder.show();
+     }
+ 
++
+     @Override
+     public void onCreate(@Nullable Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         binding = FragmentEmergencyFeedBinding.inflate(getLayoutInflater());
+-        if (learn == 0) {
+-            learn = 1;
++        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
++        learn = sharedPref.getInt(getString(R.string.learn), 0);
++        if (learn == 0){
+             Dialog(null);
++            @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPref.edit();
++            editor.putInt("Learn", 1);
+         }
+         init();
+ 
+@@ -140,7 +153,7 @@
+         progressBar.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+ 
+         dialogText = progressBar.findViewById(R.id.dialogText);
+-        dialogText.setText("Loading");
++        dialogText.setText(getResources().getString(R.string.load));
+ 
+         progressBar.show();
+     }
+Index: app/src/main/java/com/example/uptechapp/activity/SplashActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.uptechapp.activity;\n\nimport androidx.appcompat.app.AppCompatActivity;\n\nimport android.content.Intent;\nimport android.content.SharedPreferences;\nimport android.os.Bundle;\nimport android.preference.PreferenceManager;\nimport android.util.Log;\n\nimport com.example.uptechapp.R;\n\npublic class SplashActivity extends AppCompatActivity {\n\n    private static final String TAG = \"ActivitySplash\";\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_splash);\n\n        new Thread(() -> {\n            try {\n                Thread.sleep(3000);\n            } catch (InterruptedException e) {\n                e.printStackTrace();\n            }\n\n            long id = 0L;\n            try {\n                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);\n                id = sharedPref.getLong(getString(R.string.id_logging), 0L);\n\n            } catch (Exception e) {\n                Log.i(TAG, e.getMessage());\n            }\n\n            Intent intent;\n//            if (id != 0l){\n//                intent = new Intent(SplashActivity.this, MainActivityFragments.class);\n//            }\n//            else {\n//                intent = new Intent(SplashActivity.this, LoginActivity.class);\n//            }\n\n            intent = new Intent(SplashActivity.this, MainActivityFragments.class);\n            startActivity(intent);\n            SplashActivity.this.finish();\n\n        }).start();\n\n    }\n\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java b/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java
+--- a/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java	(date 1686306623647)
+@@ -1,18 +1,33 @@
+ package com.example.uptechapp.activity;
+ 
++import androidx.annotation.Nullable;
+ import androidx.appcompat.app.AppCompatActivity;
++import androidx.fragment.app.FragmentManager;
++import androidx.fragment.app.FragmentTransaction;
+ 
++import android.app.AlertDialog;
++import android.app.Dialog;
++import android.content.Context;
++import android.content.DialogInterface;
+ import android.content.Intent;
+ import android.content.SharedPreferences;
++import android.content.res.Configuration;
++import android.graphics.Color;
++import android.graphics.drawable.ColorDrawable;
+ import android.os.Bundle;
+ import android.preference.PreferenceManager;
+ import android.util.Log;
++import android.view.ViewGroup;
+ 
+ import com.example.uptechapp.R;
+ 
++import java.util.Locale;
++import java.util.Objects;
++
+ public class SplashActivity extends AppCompatActivity {
+ 
+     private static final String TAG = "ActivitySplash";
++    public static String language;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -20,6 +35,7 @@
+         setContentView(R.layout.activity_splash);
+ 
+         new Thread(() -> {
++            updateLocale();
+             try {
+                 Thread.sleep(3000);
+             } catch (InterruptedException e) {
+@@ -42,14 +58,31 @@
+ //            else {
+ //                intent = new Intent(SplashActivity.this, LoginActivity.class);
+ //            }
+-
+             intent = new Intent(SplashActivity.this, MainActivityFragments.class);
+             startActivity(intent);
+             SplashActivity.this.finish();
+ 
+         }).start();
+ 
+-    }
+ 
++    }
++    private void updateLocale() {
++        String language = Locale.getDefault().getLanguage();
++        SplashActivity.language = language;
++        Locale locale = new Locale(language);
++        Locale.setDefault(locale);
++        Configuration configuration = getResources().getConfiguration();
++        configuration.setLocale(locale);
++        configuration.setLayoutDirection(locale);
++        getResources().updateConfiguration(configuration, getResources().getDisplayMetrics());
++//        switch (language){
++//            case ("en"){
++//
++//            }
++//        }
++    }
+ 
++    public static String getLanguage() {
++        return language;
++    }
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.uptechapp.activity;\n\nimport androidx.annotation.NonNull;\nimport androidx.appcompat.app.AppCompatActivity;\nimport androidx.fragment.app.Fragment;\nimport androidx.navigation.NavController;\nimport androidx.navigation.Navigation;\nimport androidx.navigation.fragment.NavHostFragment;\n\nimport android.app.Dialog;\nimport android.content.Context;\nimport android.content.Intent;\nimport android.graphics.Color;\nimport android.graphics.drawable.ColorDrawable;\nimport android.os.Bundle;\nimport android.renderscript.ScriptGroup;\nimport android.util.Log;\nimport android.view.Gravity;\nimport android.view.MenuItem;\nimport android.view.View;\nimport android.view.ViewGroup;\nimport android.widget.Button;\nimport android.widget.TextView;\n\nimport com.example.uptechapp.R;\nimport com.example.uptechapp.databinding.ActivityMainFragmentsBinding;\nimport com.google.android.material.bottomnavigation.BottomNavigationView;\nimport com.google.android.material.navigation.NavigationBarMenu;\n\npublic class MainActivityFragments extends AppCompatActivity {\n\n    private ActivityMainFragmentsBinding binding;\n    private int learn = 0;\n    private Context context;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        binding = ActivityMainFragmentsBinding.inflate(getLayoutInflater());\n        setContentView(binding.getRoot());\n        if (learn == 0){\n            learning();\n        }\n\n        init();\n    }\n    private void learning(){\n\n    }\n\n    private void init() {\n        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);\n        NavController navController = navHostFragment.getNavController();\n\n        binding.navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {\n            @Override\n            public boolean onNavigationItemSelected(@NonNull MenuItem item) {\n                navController.navigate(item.getItemId());\n                return false;\n            }\n        });\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java b/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java
+--- a/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java	(date 1686304087451)
+@@ -1,52 +1,41 @@
+ package com.example.uptechapp.activity;
+ 
+ import androidx.annotation.NonNull;
++
+ import androidx.appcompat.app.AppCompatActivity;
+-import androidx.fragment.app.Fragment;
++
+ import androidx.navigation.NavController;
+-import androidx.navigation.Navigation;
+ import androidx.navigation.fragment.NavHostFragment;
+ 
+-import android.app.Dialog;
+ import android.content.Context;
+-import android.content.Intent;
+-import android.graphics.Color;
+-import android.graphics.drawable.ColorDrawable;
++
++import android.content.res.Configuration;
+ import android.os.Bundle;
+-import android.renderscript.ScriptGroup;
++
+ import android.util.Log;
+-import android.view.Gravity;
+ import android.view.MenuItem;
+-import android.view.View;
+-import android.view.ViewGroup;
+-import android.widget.Button;
+-import android.widget.TextView;
+ 
+ import com.example.uptechapp.R;
+ import com.example.uptechapp.databinding.ActivityMainFragmentsBinding;
+ import com.google.android.material.bottomnavigation.BottomNavigationView;
+-import com.google.android.material.navigation.NavigationBarMenu;
++
++import java.util.Locale;
+ 
+ public class MainActivityFragments extends AppCompatActivity {
+ 
+     private ActivityMainFragmentsBinding binding;
+-    private int learn = 0;
+-    private Context context;
++    public String language;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         binding = ActivityMainFragmentsBinding.inflate(getLayoutInflater());
+         setContentView(binding.getRoot());
+-        if (learn == 0){
+-            learning();
+-        }
+-
+         init();
++
+     }
+-    private void learning(){
+ 
+-    }
++
+ 
+     private void init() {
+         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.mainFragmentContainer);
+Index: app/src/main/res/layout/fragment_create_emergency.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/fragment_create\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\">\n\n    <TextView\n        android:id=\"@+id/info\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"16dp\"\n        android:padding=\"8dp\"\n        android:text=\"@string/create_create\"\n        android:textAlignment=\"center\"\n        android:textAppearance=\"@style/TextAppearance.AppCompat.Headline\"\n        android:background=\"@drawable/round_view\"\n        android:layout_marginLeft=\"36dp\"\n        android:layout_marginRight=\"36dp\"\n        android:textColor=\"@color/design_default_color_primary\"\n        app:layout_constraintHorizontal_bias=\"0.0\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"parent\" />\n\n    <EditText\n        android:id=\"@+id/editTextLabel\"\n        style=\"@style/Widget.AppCompat.AutoCompleteTextView\"\n        android:layout_width=\"281dp\"\n        android:layout_height=\"56dp\"\n        android:layout_marginStart=\"64dp\"\n        android:layout_marginTop=\"24dp\"\n        android:drawableStart=\"@drawable/ic_label\"\n        android:drawablePadding=\"16dp\"\n\n        android:drawableTint=\"@color/white\"\n        android:inputType=\"text\"\n        android:paddingBottom=\"15dp\"\n        android:selectAllOnFocus=\"true\"\n        android:singleLine=\"true\"\n        android:text='@string/create_lable'\n        android:textAlignment=\"gravity\"\n        android:textColor=\"@color/black\"\n        android:textColorHint=\"@color/white\"\n        app:layout_constraintHorizontal_bias=\"1.0\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/info\" />\n\n    <ImageView\n        android:id=\"@+id/emergencyImg\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"20dp\"\n        android:adjustViewBounds=\"true\"\n        android:maxHeight=\"250dp\"\n        android:layout_centerInParent=\"true\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/editTextLabel\"/>\n\n    <androidx.appcompat.widget.AppCompatButton\n        android:id=\"@+id/btnChoosePicture\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginLeft=\"70dp\"\n        android:layout_marginTop=\"20dp\"\n        android:layout_marginRight=\"70dp\"\n        android:background=\"@drawable/round_view\"\n        android:backgroundTint=\"#FF5D57\"\n\n        android:text=\"Choose Picture\"\n        android:textColor=\"#FFFFFF\"\n\n\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/emergencyImg\"/>\n\n\n    <EditText\n        android:id=\"@+id/editTextDescription\"\n        android:layout_width=\"283dp\"\n        android:layout_height=\"85dp\"\n        android:layout_marginTop=\"32dp\"\n        android:drawableStart=\"@drawable/ic_label\"\n        android:drawablePadding=\"16dp\"\n        android:drawableTint=\"@color/white\"\n        android:ems=\"10\"\n        android:hint=\"Write description\"\n        android:inputType=\"text\"\n        android:text=\"Описание\"\n        android:textColor=\"@color/black\"\n        android:textColorHint=\"@color/white\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/btnChoosePicture\" />\n\n    <androidx.appcompat.widget.AppCompatButton\n        android:id=\"@+id/btnShare\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"10dp\"\n        android:layout_marginLeft=\"70dp\"\n        android:layout_marginRight=\"70dp\"\n        android:text=\"Share Emergency\"\n        android:textColor=\"@color/white\"\n        android:background=\"@drawable/round_view\"\n        android:backgroundTint=\"#FF5D57\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/editTextDescription\"/>\n\n    <TextView\n        android:id=\"@+id/textView2\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:paddingBottom=\"80dp\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/btnShare\" />\n\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_create_emergency.xml b/app/src/main/res/layout/fragment_create_emergency.xml
+--- a/app/src/main/res/layout/fragment_create_emergency.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/layout/fragment_create_emergency.xml	(date 1686302272990)
+@@ -89,9 +89,8 @@
+         android:drawablePadding="16dp"
+         android:drawableTint="@color/white"
+         android:ems="10"
+-        android:hint="Write description"
+         android:inputType="text"
+-        android:text="Описание"
++        android:text="@string/description"
+         android:textColor="@color/black"
+         android:textColorHint="@color/white"
+         app:layout_constraintLeft_toLeftOf="parent"
+@@ -105,7 +104,7 @@
+         android:layout_marginTop="10dp"
+         android:layout_marginLeft="70dp"
+         android:layout_marginRight="70dp"
+-        android:text="Share Emergency"
++        android:text="@string/share_emergency"
+         android:textColor="@color/white"
+         android:background="@drawable/round_view"
+         android:backgroundTint="#FF5D57"
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+deleted file mode 100644
+--- a/app/src/main/res/values/strings.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ /dev/null	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
+@@ -1,21 +0,0 @@
+-<resources>
+-
+-    <string name="app_name">UptechApp</string>
+-    <string name="id_logging">IdLogged</string>
+-    <string name="default_web_client_id_google" translatable="false">573000313275-636b6r5sn8mob95rkder9r6tsoifdo2o.apps.googleusercontent.com</string>
+-    <string name="progressBarLogging">Logging</string>
+-    <string name="sign_in_with_google">Sign In With Google</string>
+-    <string name="news">News</string>
+-    <string name="verify_hint">To verify your personality you need to:</string>
+-    <string name="login_inf">* By clicking on the button, you agree to provide Your information is sent to the UpTech application for processing.</string>
+-    <string name="time">Time</string>
+-    <string name="info">Info</string>
+-    <string name="name">Name</string>
+-    <string name="title"><b>Title</b></string>
+-    <string name="dummy_button">Dummy Button</string>
+-    <string name="dummy_content">DUMMY\nCONTENT</string>
+-    <string name="create">Создание записи</string>
+-    <string name="create_lable">Название</string>
+-    <string name="create_create">Создание записи</string>
+-
+-</resources>
+\ No newline at end of file
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\n\n    <style name=\"Widget.Theme.UptechApp.ButtonBar.Fullscreen\" parent=\"\">\n        <item name=\"android:background\">@color/black_overlay</item>\n        <item name=\"android:buttonBarStyle\">?android:attr/buttonBarStyle</item>\n    </style>\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/styles.xml b/app/src/main/res/values/styles.xml
+--- a/app/src/main/res/values/styles.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/values/styles.xml	(date 1686220075509)
+@@ -1,7 +1,7 @@
+ <resources>
+ 
+     <style name="Widget.Theme.UptechApp.ButtonBar.Fullscreen" parent="">
+-        <item name="android:background">@color/black_overlay</item>
++        <item name="android:background">@color/white</item>
+         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+     </style>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/drawable/round_corner_btn.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<shape\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:shape=\"rectangle\">\n\n    <corners android:radius=\"300dp\"/>\n\n    <solid android:color=\"@color/design_default_color_primary\"/>\n\n</shape>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/round_corner_btn.xml b/app/src/main/res/drawable/round_corner_btn.xml
+--- a/app/src/main/res/drawable/round_corner_btn.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/drawable/round_corner_btn.xml	(date 1686219775956)
+@@ -5,6 +5,6 @@
+ 
+     <corners android:radius="300dp"/>
+ 
+-    <solid android:color="@color/design_default_color_primary"/>
++    <solid android:color="#5D57FF"/>
+ 
+ </shape>
+\ No newline at end of file
+Index: app/src/main/java/com/example/uptechapp/dao/Database.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.uptechapp.dao;\n\nimport android.os.Build;\nimport android.util.Log;\n\nimport androidx.annotation.NonNull;\n\nimport com.example.uptechapp.api.CompleteListener;\nimport com.example.uptechapp.api.EmergencyApiService;\nimport com.example.uptechapp.model.Emergency;\n\nimport java.util.ArrayList;\nimport java.util.List;\n\nimport retrofit2.Call;\nimport retrofit2.Callback;\nimport retrofit2.Response;\n\npublic class Database {\n\n    public static List<Emergency> EMERGENCIES_LIST = new ArrayList<>();\n    public static List<Emergency> EMERGENCIES_LIST_FAKE = new ArrayList<>();\n\n    public static void loadEmergencies (CompleteListener listener) {\n        EMERGENCIES_LIST_FAKE.add(new Emergency(\"0\", \"qq\", \"qq\", \"11\", \"ss\", 52, 104));\n        Log.d(\"MapService\", \"EML \" + EMERGENCIES_LIST.toString());\n        EMERGENCIES_LIST.clear();\n        try {\n            EmergencyApiService.getInstance().getEmergency().enqueue(new Callback<List<Emergency>>() {\n                @Override\n                public void onResponse(@NonNull Call<List<Emergency>> call, @NonNull Response<List<Emergency>> response) {\n                    EMERGENCIES_LIST.addAll(response.body());\n                    MyViewModel.getInstance().getEmergencyLiveData().postValue(EMERGENCIES_LIST);\n                    Log.d(\"MapService\", \"1loadEmergencies complete: \" + EMERGENCIES_LIST.toString());\n                }\n\n                @Override\n                public void onFailure(@NonNull Call<List<Emergency>> call, @NonNull Throwable t) {\n                    t.printStackTrace();\n                }\n            });\n            listener.OnSuccess();\n            Log.d(\"MapService\", \"2loadEmergencies complete: \" + EMERGENCIES_LIST.toString());\n        } catch (Exception e) {\n            listener.OnFailure();\n        }\n    }\n\n    public static Emergency getEmergencyByTitle(String title) {\n        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {\n            return EMERGENCIES_LIST.stream().filter(emergency -> emergency.getTitle().equals(title)).findAny()\n                    .orElseThrow(() -> new RuntimeException(\"not found\"));\n        }\n        else {\n            for (Emergency emergency:\n                    EMERGENCIES_LIST) {\n                if(emergency.getTitle().equals(title)) {\n                    return emergency;\n                }\n            }\n        }\n        return null;\n    }\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/uptechapp/dao/Database.java b/app/src/main/java/com/example/uptechapp/dao/Database.java
+--- a/app/src/main/java/com/example/uptechapp/dao/Database.java	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/java/com/example/uptechapp/dao/Database.java	(date 1686212911610)
+@@ -29,7 +29,7 @@
+             EmergencyApiService.getInstance().getEmergency().enqueue(new Callback<List<Emergency>>() {
+                 @Override
+                 public void onResponse(@NonNull Call<List<Emergency>> call, @NonNull Response<List<Emergency>> response) {
+-                    EMERGENCIES_LIST.addAll(response.body());
++                    //EMERGENCIES_LIST.addAll(response.body());
+                     MyViewModel.getInstance().getEmergencyLiveData().postValue(EMERGENCIES_LIST);
+                     Log.d("MapService", "1loadEmergencies complete: " + EMERGENCIES_LIST.toString());
+                 }
+Index: app/src/main/res/drawable/create_news.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><vector android:height=\"24dp\" android:tint=\"#8640BD\"\n    android:viewportHeight=\"24\" android:viewportWidth=\"24\"\n    android:width=\"24dp\" xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <path android:fillColor=\"@android:color/white\" android:pathData=\"M20,6h-8l-2,-2L4,4c-1.11,0 -1.99,0.89 -1.99,2L2,18c0,1.11 0.89,2 2,2h16c1.11,0 2,-0.89 2,-2L22,8c0,-1.11 -0.89,-2 -2,-2zM19,14h-3v3h-2v-3h-3v-2h3L14,9h2v3h3v2z\"/>\n</vector>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/create_news.xml b/app/src/main/res/drawable/create_news.xml
+--- a/app/src/main/res/drawable/create_news.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/drawable/create_news.xml	(date 1686219921458)
+@@ -1,4 +1,4 @@
+-<vector android:height="24dp" android:tint="#8640BD"
++<vector android:height="24dp" android:tint="#5D57FF"
+     android:viewportHeight="24" android:viewportWidth="24"
+     android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+     <path android:fillColor="@android:color/white" android:pathData="M20,6h-8l-2,-2L4,4c-1.11,0 -1.99,0.89 -1.99,2L2,18c0,1.11 0.89,2 2,2h16c1.11,0 2,-0.89 2,-2L22,8c0,-1.11 -0.89,-2 -2,-2zM19,14h-3v3h-2v-3h-3v-2h3L14,9h2v3h3v2z"/>
+Index: app/src/main/res/drawable/news_feed.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><vector android:autoMirrored=\"true\" android:height=\"24dp\"\n    android:tint=\"#8640BD\" android:viewportHeight=\"24\"\n    android:viewportWidth=\"24\" android:width=\"24dp\" xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <path android:fillColor=\"@android:color/white\" android:pathData=\"M16,3H5C3.9,3 3,3.9 3,5v14c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2V8L16,3zM7,7h5v2H7V7zM17,17H7v-2h10V17zM17,13H7v-2h10V13zM15,9V5l4,4H15z\"/>\n</vector>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/news_feed.xml b/app/src/main/res/drawable/news_feed.xml
+--- a/app/src/main/res/drawable/news_feed.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/drawable/news_feed.xml	(date 1686219752537)
+@@ -1,5 +1,5 @@
+ <vector android:autoMirrored="true" android:height="24dp"
+-    android:tint="#8640BD" android:viewportHeight="24"
++    android:tint="#5D57FF" android:viewportHeight="24"
+     android:viewportWidth="24" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+     <path android:fillColor="@android:color/white" android:pathData="M16,3H5C3.9,3 3,3.9 3,5v14c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2V8L16,3zM7,7h5v2H7V7zM17,17H7v-2h10V17zM17,13H7v-2h10V13zM15,9V5l4,4H15z"/>
+ </vector>
+Index: app/src/main/res/drawable/map.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><vector android:height=\"24dp\" android:tint=\"#8640BD\"\n    android:viewportHeight=\"24\" android:viewportWidth=\"24\"\n    android:width=\"24dp\" xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <path android:fillColor=\"@android:color/white\" android:pathData=\"M20.5,3l-0.16,0.03L15,5.1 9,3 3.36,4.9c-0.21,0.07 -0.36,0.25 -0.36,0.48V20.5c0,0.28 0.22,0.5 0.5,0.5l0.16,-0.03L9,18.9l6,2.1 5.64,-1.9c0.21,-0.07 0.36,-0.25 0.36,-0.48V3.5c0,-0.28 -0.22,-0.5 -0.5,-0.5zM15,19l-6,-2.11V5l6,2.11V19z\"/>\n</vector>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/map.xml b/app/src/main/res/drawable/map.xml
+--- a/app/src/main/res/drawable/map.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/drawable/map.xml	(date 1686219830743)
+@@ -1,4 +1,4 @@
+-<vector android:height="24dp" android:tint="#8640BD"
++<vector android:height="24dp" android:tint="#5D57FF"
+     android:viewportHeight="24" android:viewportWidth="24"
+     android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+     <path android:fillColor="@android:color/white" android:pathData="M20.5,3l-0.16,0.03L15,5.1 9,3 3.36,4.9c-0.21,0.07 -0.36,0.25 -0.36,0.48V20.5c0,0.28 0.22,0.5 0.5,0.5l0.16,-0.03L9,18.9l6,2.1 5.64,-1.9c0.21,-0.07 0.36,-0.25 0.36,-0.48V3.5c0,-0.28 -0.22,-0.5 -0.5,-0.5zM15,19l-6,-2.11V5l6,2.11V19z"/>
+Index: app/src/main/res/menu/bottom_menu.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<menu xmlns:android=\"http://schemas.android.com/apk/res/android\">\n\n    <item\n        android:id=\"@+id/fragment_emergency_feed\"\n        android:icon=\"@drawable/news_feed\"\n        android:title=\"News\"\n        />\n\n    <item\n        android:id=\"@+id/fragment_create\"\n        android:icon=\"@drawable/create_news\"\n        android:title=\"Create\"\n\n        />\n\n    <item\n        android:id=\"@+id/fragment_map\"\n        android:icon=\"@drawable/map\"\n        android:title=\"Map\"/>\n\n</menu>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/menu/bottom_menu.xml b/app/src/main/res/menu/bottom_menu.xml
+--- a/app/src/main/res/menu/bottom_menu.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/menu/bottom_menu.xml	(date 1686304445326)
+@@ -4,19 +4,12 @@
+     <item
+         android:id="@+id/fragment_emergency_feed"
+         android:icon="@drawable/news_feed"
+-        android:title="News"
+-        />
+-
+-    <item
+-        android:id="@+id/fragment_create"
+-        android:icon="@drawable/create_news"
+-        android:title="Create"
+-
++        android:title="@string/news"
+         />
+ 
+     <item
+         android:id="@+id/fragment_map"
+         android:icon="@drawable/map"
+-        android:title="Map"/>
++        android:title="@string/map"/>
+ 
+ </menu>
+Index: app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.uptechapp.activity;\n\nimport static android.app.Activity.RESULT_OK;\n\nimport android.content.ContentResolver;\nimport android.content.Intent;\nimport android.net.Uri;\nimport android.os.Bundle;\nimport android.util.Log;\nimport android.view.LayoutInflater;\nimport android.view.View;\nimport android.view.ViewGroup;\nimport android.webkit.MimeTypeMap;\nimport android.widget.Button;\nimport android.widget.EditText;\nimport android.widget.ImageView;\nimport android.widget.Toast;\n\nimport androidx.activity.result.ActivityResultLauncher;\nimport androidx.annotation.NonNull;\nimport androidx.annotation.Nullable;\nimport androidx.fragment.app.Fragment;\nimport androidx.navigation.Navigation;\n\nimport com.example.uptechapp.R;\nimport com.example.uptechapp.api.EmergencyApiService;\nimport com.example.uptechapp.databinding.FragmentCreateEmergencyBinding;\nimport com.example.uptechapp.model.Emergency;\nimport com.google.android.gms.maps.GoogleMap;\nimport com.google.android.gms.maps.model.LatLng;\nimport com.google.android.gms.tasks.OnFailureListener;\nimport com.google.android.gms.tasks.OnSuccessListener;\nimport com.google.firebase.storage.FirebaseStorage;\nimport com.google.firebase.storage.StorageReference;\nimport com.google.firebase.storage.UploadTask;\n\nimport java.util.Arrays;\nimport java.util.Calendar;\n\nimport retrofit2.Call;\nimport retrofit2.Callback;\nimport retrofit2.Response;\n\npublic class CreateEmergencyFragment extends Fragment implements CreateEmergencyFragment2 {\n\n    private FragmentCreateEmergencyBinding binding;\n\n    private static final String TAG = \"CreatingActivity\";\n    private Button btnChoose, btnShare;\n    Intent intent;\n    String intent1;\n    private ImageView emergencyImg;\n    private EditText emergencyLabel, emergencyDescription;\n    private Uri uriImage;\n    private StorageReference storageReference;\n    private static final int PICK_IMAGE_REQUEST = 1;\n    ActivityResultLauncher<String[]> locationPermissionRequest;\n\n    public static Double longitude;\n    public static Double latitude;\n\n    @Override\n    public void onCreate(@Nullable Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        binding = FragmentCreateEmergencyBinding.inflate(getLayoutInflater());\n        init();\n    }\n\n    @Nullable\n    @Override\n    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {\n        return binding.getRoot();\n    }\n\n    @Override\n    public void onDestroy() {\n        super.onDestroy();\n        binding = null;\n    }\n\n    private void init() {\n\n//        initbtnChoose = binding.btnChoosePicture;\n        btnShare = binding.btnShare;\n        emergencyLabel = binding.editTextLabel;\n        emergencyDescription = binding.editTextDescription;\n        emergencyImg = binding.emergencyImg;\n\n        storageReference = FirebaseStorage.getInstance().getReference(\"Emergency\");\n\n        btnChoose.setOnClickListener(new View.OnClickListener() {\n            @Override\n            public void onClick(View view) {\n                openFileChooser();\n            }\n        });\n\n        btnShare.setOnClickListener(new View.OnClickListener() {\n            @Override\n            public void onClick(View view) {\n                shareEmergency();\n            }\n        });\n    }\n\n    private void openFileChooser() {\n        Intent intent = new Intent();\n        intent.setType(\"image/*\");\n        intent.setAction(Intent.ACTION_GET_CONTENT);\n        startActivityForResult(intent, PICK_IMAGE_REQUEST);\n    }\n\n    @Override\n    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {\n        super.onActivityResult(requestCode, resultCode, data);\n\n        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {\n\n            uriImage = data.getData();\n            emergencyImg.setImageURI(uriImage);\n        } else {\n            Toast.makeText(getContext(), \"Try Later\", Toast.LENGTH_SHORT).show();\n        }\n    }\n\n    private void shareEmergency() {\n        if (uriImage != null) {\n\n            int id = 1;\n\n            StorageReference fileReference = storageReference.child(String.valueOf(id) + \"/Photo.\" + getFileExtension(uriImage));\n\n            fileReference.putFile(uriImage).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {\n                @Override\n                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {\n                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {\n                        @Override\n                        public void onSuccess(Uri uri) {\n                            Uri downloadUri = uri;\n\n                            String url = downloadUri.toString();\n                            String[] time = Calendar.getInstance().getTime().toString().split(\" \");\n                            Log.i(\"time\", \"Time\" + Arrays.toString(time));\n\n                            Emergency emergency = new Emergency(\n                                    \"-1\",\n                                    emergencyLabel.getText().toString(),\n                                    emergencyDescription.getText().toString(),\n                                    Calendar.getInstance().getTime().toString(),\n                                    url,\n                                    latitude,\n                                    longitude\n                            );\n\n                            EmergencyApiService.getInstance().postJson(emergency).enqueue(new Callback<Emergency>() {\n                                @Override\n                                public void onResponse(@NonNull Call<Emergency> call, @NonNull Response<Emergency> response) {\n                                    Log.i(TAG, \"Response - \" + call.toString());\n                                }\n\n                                @Override\n                                public void onFailure(@NonNull Call<Emergency> call, @NonNull Throwable t) {\n                                    Log.i(TAG, \"FAIL - \" + t.getMessage());\n                                }\n                            });\n\n                        }\n                    });\n                    Navigation.findNavController(getActivity(), R.id.mainFragmentContainer).navigate(R.id.fragment_emergency_feed);\n                }\n            }).addOnFailureListener(new OnFailureListener() {\n                @Override\n                public void onFailure(@NonNull Exception e) {\n                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();\n                }\n            });\n        } else {\n            Toast.makeText(getContext(), \"File was not selected\", Toast.LENGTH_SHORT).show();\n        }\n    }\n\n    private String getFileExtension(Uri uriImage) {\n        ContentResolver contentResolver = getActivity().getContentResolver();\n        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();\n\n        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uriImage));\n    }\n\n//    private void getLocation() {\n//        locationPermissionRequest =\n//                registerForActivityResult(new ActivityResultContracts\n//                                .RequestMultiplePermissions(), result -> {\n//                            Boolean fineLocationGranted = result.getOrDefault(\n//                                    Manifest.permission.ACCESS_FINE_LOCATION, false);\n//                            Boolean coarseLocationGranted = result.getOrDefault(\n//                                    Manifest.permission.ACCESS_COARSE_LOCATION, false);\n//                            if (fineLocationGranted != null && fineLocationGranted) {\n//                                // Precise location access granted.\n//                                Toast.makeText(getContext(), \"Precise location access granted\", Toast.LENGTH_SHORT).show();\n//                            } else if (coarseLocationGranted != null && coarseLocationGranted) {\n//                                //\n//                                Toast.makeText(getContext(), \"Only approximate location access granted.\", Toast.LENGTH_SHORT).show();\n//                            } else {\n//                                //\n//                                Toast.makeText(getContext(), \"No location access granted. Denied\", Toast.LENGTH_SHORT).show();\n//                            }\n//                        }\n//                );\n//        if (!checkLoc()) {\n//            locationPermissionRequest.launch(new String[]{\n//                    Manifest.permission.ACCESS_FINE_LOCATION,\n//                    Manifest.permission.ACCESS_COARSE_LOCATION\n//            });\n//        }\n//\n//        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());\n//\n//        checkLoc();\n//\n//        if (!checkLoc()) {\n//            return;\n//        }\n//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {\n//            return;\n//        }\n//        fusedLocationClient.getLastLocation()\n//                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {\n//                    @Override\n//                    public void onSuccess(Location location) {\n//                        // Gt last known location. In some rare situations this can be null.o\n//                        if (location != null) {\n//                            latitude = location.getLatitude();\n//                            longitude = location.getLongitude();\n//                        }\n//                    }\n//                });\n//    }\n//\n//    boolean checkLoc(){\n//        return ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||\n//                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;\n//    }\n//\n//    public static Double getLongitude() {\n//        return longitude;\n//    }\n//\n//\n//    public static Double getLatitude() {\n//        return latitude;\n//    }\n\n    public static void setLongitude(Double longitude) {\n        CreateEmergencyFragment.longitude = longitude;\n    }\n\n\n    public static void setLatitude(Double latitude) {\n        CreateEmergencyFragment.latitude = latitude;\n    }\n\n    @Override\n    public void Create(@NonNull LatLng latLng) {\n        CreateEmergencyFragment.latitude = latLng.latitude;\n        CreateEmergencyFragment.longitude = latLng.longitude;\n        onCreate(null);\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java b/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java
+--- a/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java	(date 1686208713967)
+@@ -41,7 +41,7 @@
+ import retrofit2.Callback;
+ import retrofit2.Response;
+ 
+-public class CreateEmergencyFragment extends Fragment implements CreateEmergencyFragment2 {
++public class CreateEmergencyFragment extends Fragment {
+ 
+     private FragmentCreateEmergencyBinding binding;
+ 
+@@ -259,10 +259,4 @@
+         CreateEmergencyFragment.latitude = latitude;
+     }
+ 
+-    @Override
+-    public void Create(@NonNull LatLng latLng) {
+-        CreateEmergencyFragment.latitude = latLng.latitude;
+-        CreateEmergencyFragment.longitude = latLng.longitude;
+-        onCreate(null);
+-    }
+ }
+Index: app/src/main/res/layout/bottom_navigation_view.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\">\n\n    <com.google.android.material.bottomnavigation.BottomNavigationView\n        android:id=\"@+id/bottomNavBar\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginBottom=\"16dp\"\n        android:layout_marginTop=\"8dp\"\n        android:background=\"@drawable/round_view\"\n        android:elevation=\"5dp\"\n        app:itemIconTint=\"@color/design_default_color_primary\"\n        app:itemTextColor=\"@color/design_default_color_primary\"\n        app:menu=\"@menu/bottom_menu\" />\n\n</LinearLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/bottom_navigation_view.xml b/app/src/main/res/layout/bottom_navigation_view.xml
+--- a/app/src/main/res/layout/bottom_navigation_view.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/layout/bottom_navigation_view.xml	(date 1686217512984)
+@@ -8,12 +8,12 @@
+         android:id="@+id/bottomNavBar"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:layout_marginBottom="16dp"
+         android:layout_marginTop="8dp"
++        android:layout_marginBottom="16dp"
+         android:background="@drawable/round_view"
+         android:elevation="5dp"
+-        app:itemIconTint="@color/design_default_color_primary"
+-        app:itemTextColor="@color/design_default_color_primary"
++        app:itemIconTint="#5D57FF"
++        app:itemTextColor="#5D57FF"
+         app:menu="@menu/bottom_menu" />
+ 
+ </LinearLayout>
+\ No newline at end of file
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\n    id 'com.android.application'\n    id 'com.google.gms.google-services'\n    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'\n\n}\n\nandroid {\n    namespace 'com.example.uptechapp'\n    compileSdk 33\n\n    defaultConfig {\n        applicationId \"com.example.uptechapp\"\n        minSdk 24\n        targetSdk 33\n        versionCode 1\n        versionName \"1.0\"\n\n        testInstrumentationRunner \"androidx.test.runner.AndroidJUnitRunner\"\n    }\n\n    buildTypes {\n        release {\n            minifyEnabled false\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\n        }\n    }\n    compileOptions {\n        sourceCompatibility JavaVersion.VERSION_11\n        targetCompatibility JavaVersion.VERSION_11\n    }\n\n    viewBinding {\n        enabled true\n    }\n}\n\ndependencies {\n\n    implementation 'androidx.appcompat:appcompat:1.6.1'\n    implementation 'com.google.android.material:material:1.8.0'\n    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'\n    implementation 'com.google.android.gms:play-services-location:21.0.1'\n    testImplementation 'junit:junit:4.13.2'\n    androidTestImplementation 'androidx.test.ext:junit:1.1.5'\n    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'\n    implementation 'com.google.android.gms:play-services-safetynet:18.0.1'\n\n    // for google authentication\n    implementation platform('com.google.firebase:firebase-bom:31.4.0')\n    implementation 'com.google.android.gms:play-services-auth:20.5.0'\n\n    // for google maps\n    implementation 'com.google.android.gms:play-services-maps:18.1.0'\n\n    // for saving photos\n    implementation 'com.google.firebase:firebase-storage:20.1.0'\n\n    // Android\n    implementation \"androidx.appcompat:appcompat:$appcompat_version\"\n    implementation \"com.google.android.material:material:$material_version\"\n    implementation \"androidx.constraintlayout:constraintlayout:$constraint_version\"\n\n// Navigation\n    implementation \"androidx.navigation:navigation-fragment:$nav_version\"\n    implementation \"androidx.navigation:navigation-ui:$nav_version\"\n\n// Retrofit\n    implementation \"com.squareup.retrofit2:retrofit:$retrofit_version\"\n    implementation \"com.squareup.retrofit2:converter-moshi:$retrofit_version\"\n\n// Glide\n    implementation \"com.github.bumptech.glide:glide:$glide_version\"\n\n// NavGraph\n    implementation \"androidx.navigation:navigation-fragment:$nav_version\"\n    implementation \"androidx.navigation:navigation-ui:$nav_version\"\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle b/app/build.gradle
+--- a/app/build.gradle	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/build.gradle	(date 1686248844390)
+@@ -36,11 +36,14 @@
+ }
+ 
+ dependencies {
+-
++    implementation 'com.github.bumptech.glide:glide:4.15.1'
++    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+     implementation 'androidx.appcompat:appcompat:1.6.1'
+-    implementation 'com.google.android.material:material:1.8.0'
++    implementation 'com.google.android.material:material:1.9.0'
+     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+     implementation 'com.google.android.gms:play-services-location:21.0.1'
++    implementation 'androidx.media3:media3-exoplayer:1.1.0-beta01'
++    implementation 'androidx.media3:media3-ui:1.1.0-beta01'
+     testImplementation 'junit:junit:4.13.2'
+     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+@@ -54,15 +57,18 @@
+     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+ 
+     // for saving photos
+-    implementation 'com.google.firebase:firebase-storage:20.1.0'
++    implementation 'com.google.firebase:firebase-storage:20.2.0'
+ 
+     // Android
+     implementation "androidx.appcompat:appcompat:$appcompat_version"
++    //noinspection GradleDependency
+     implementation "com.google.android.material:material:$material_version"
+     implementation "androidx.constraintlayout:constraintlayout:$constraint_version"
+ 
+ // Navigation
++    //noinspection GradleDependency
+     implementation "androidx.navigation:navigation-fragment:$nav_version"
++    //noinspection GradleDependency
+     implementation "androidx.navigation:navigation-ui:$nav_version"
+ 
+ // Retrofit
+@@ -73,7 +79,9 @@
+     implementation "com.github.bumptech.glide:glide:$glide_version"
+ 
+ // NavGraph
++    //noinspection GradleDependency
+     implementation "androidx.navigation:navigation-fragment:$nav_version"
++    //noinspection GradleDependency
+     implementation "androidx.navigation:navigation-ui:$nav_version"
+ 
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_splash.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    tools:context=\".activity.SplashActivity\"\n    android:background=\"@color/dark_gray_figma\">\n\n    <TextView\n        android:id=\"@+id/textView\"\n        android:layout_width=\"272dp\"\n        android:layout_height=\"89dp\"\n        android:layout_marginTop=\"328dp\"\n        android:gravity=\"center\"\n        android:text=\"LOOKOUT\"\n        android:textColor=\"@color/purple_figma\"\n        android:textSize=\"60sp\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintHorizontal_bias=\"0.496\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"parent\" />\n\n\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_splash.xml b/app/src/main/res/layout/activity_splash.xml
+--- a/app/src/main/res/layout/activity_splash.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/layout/activity_splash.xml	(date 1686217512981)
+@@ -4,8 +4,8 @@
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    tools:context=".activity.SplashActivity"
+-    android:background="@color/dark_gray_figma">
++    android:background="@color/white"
++    tools:context=".activity.SplashActivity">
+ 
+     <TextView
+         android:id="@+id/textView"
+@@ -14,7 +14,7 @@
+         android:layout_marginTop="328dp"
+         android:gravity="center"
+         android:text="LOOKOUT"
+-        android:textColor="@color/purple_figma"
++        android:textColor="#5D57FF"
+         android:textSize="60sp"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintHorizontal_bias="0.496"
+Index: app/src/main/res/layout/dialog_layout.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"wrap_content\"\n    android:layout_height=\"wrap_content\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    android:orientation=\"vertical\"\n    android:gravity=\"center\"\n    android:background=\"#FFFFFF\">\n\n    <LinearLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"match_parent\"\n        android:background=\"@drawable/round_view\"\n        android:elevation=\"5dp\">\n\n        <ProgressBar\n            android:id=\"@+id/progressBar\"\n            android:layout_width=\"40dp\"\n            android:layout_height=\"40dp\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"16dp\"\n            android:layout_marginBottom=\"16dp\"\n            android:layout_weight=\"1\"\n            android:indeterminateTint=\"@color/design_default_color_primary\"\n            app:layout_constraintBottom_toBottomOf=\"parent\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toTopOf=\"parent\"\n            style=\"?android:attr/progressBarStyle\"/>\n\n        <TextView\n            android:id=\"@+id/dialogText\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"match_parent\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginEnd=\"16dp\"\n            android:text=\"TextView\"\n            android:textSize=\"18sp\"\n            android:layout_weight=\"1\"\n            android:gravity=\"center\"\n            android:textColor=\"@color/design_default_color_primary\"\n            android:paddingRight=\"15dp\"\n            app:layout_constraintBottom_toBottomOf=\"parent\"\n            app:layout_constraintStart_toEndOf=\"@+id/progressBar\"\n            app:layout_constraintEnd_toEndOf=\"parent\"/>\n    </LinearLayout>\n\n\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/dialog_layout.xml b/app/src/main/res/layout/dialog_layout.xml
+--- a/app/src/main/res/layout/dialog_layout.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/app/src/main/res/layout/dialog_layout.xml	(date 1686217512976)
+@@ -15,17 +15,17 @@
+ 
+         <ProgressBar
+             android:id="@+id/progressBar"
++            style="?android:attr/progressBarStyle"
+             android:layout_width="40dp"
+             android:layout_height="40dp"
+             android:layout_marginStart="16dp"
+             android:layout_marginTop="16dp"
+             android:layout_marginBottom="16dp"
+             android:layout_weight="1"
+-            android:indeterminateTint="@color/design_default_color_primary"
++            android:indeterminateTint="#5D57FF"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toTopOf="parent"
+-            style="?android:attr/progressBarStyle"/>
++            app:layout_constraintTop_toTopOf="parent" />
+ 
+         <TextView
+             android:id="@+id/dialogText"
+@@ -33,15 +33,15 @@
+             android:layout_height="match_parent"
+             android:layout_marginStart="16dp"
+             android:layout_marginEnd="16dp"
+-            android:text="TextView"
+-            android:textSize="18sp"
+             android:layout_weight="1"
+             android:gravity="center"
+-            android:textColor="@color/design_default_color_primary"
+             android:paddingRight="15dp"
++            android:text="TextView"
++            android:textColor="#5D57FF"
++            android:textSize="18sp"
+             app:layout_constraintBottom_toBottomOf="parent"
+-            app:layout_constraintStart_toEndOf="@+id/progressBar"
+-            app:layout_constraintEnd_toEndOf="parent"/>
++            app:layout_constraintEnd_toEndOf="parent"
++            app:layout_constraintStart_toEndOf="@+id/progressBar" />
+     </LinearLayout>
+ 
+ 
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AndroidLayouts\">\n    <shared>\n      <config />\n    </shared>\n  </component>\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"NONE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"a90587e1-8657-482c-8a3a-9cf2e5df7389\" name=\"Changes\" comment=\"dialog\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/dao/MapService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/dao/MapService.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/res/layout/fragment_create_emergency.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/res/layout/fragment_create_emergency.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/res/values/strings.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/res/values/strings.xml\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"ExecutionTargetManager\" SELECTED_TARGET=\"device_and_snapshot_combo_box_target[/Users/nikitastepanov/.android/avd/Pixel_4_API_33.avd]\" />\n  <component name=\"ExternalProjectsData\">\n    <projectState path=\"$PROJECT_DIR$\">\n      <ProjectState />\n    </projectState>\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"resourceFile\" />\n        <option value=\"valueResourceFile\" />\n        <option value=\"navigationResourceFile\" />\n        <option value=\"Class\" />\n        <option value=\"Interface\" />\n        <option value=\"layoutResourceFile\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"GenerateSignedApkSettings\">\n    <option name=\"KEY_STORE_PATH\" value=\"C:\\Users\\tenshi\\Documents\\key.jks\" />\n    <option name=\"KEY_ALIAS\" value=\"key0\" />\n    <option name=\"BUILD_TARGET_KEY\" value=\"apk\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"PUSH_TAGS\">\n      <GitPushTagMode>\n        <option name=\"argument\" value=\"--tags\" />\n        <option name=\"title\" value=\"All\" />\n      </GitPushTagMode>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n    <option name=\"UPDATE_TYPE\" value=\"REBASE\" />\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProblemsViewState\">\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\n  </component>\n  <component name=\"ProjectId\" id=\"2OuvrH1rASODz0joVqpoYGSZ4Fd\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;ApkExportedModule&quot;: &quot;UptechApp.app&quot;,\n    &quot;ExportApk.ApkPathForUptechApp.app&quot;: &quot;C:\\\\Users\\\\tenshi\\\\Documents\\\\Android Studio Projects\\\\UPTECH new firebase\\\\app&quot;,\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,\n    &quot;android-custom-viewC:/Users/tenshi/AppData/Local/Android/Sdk/sources/android-33/android/widget/ImageView.java_SELECTED&quot;: &quot;ImageView&quot;,\n    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,\n    &quot;com.android.tools.idea.streaming.emulator.frame.visible&quot;: &quot;false&quot;,\n    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,\n    &quot;last_opened_file_path&quot;: &quot;/Users/nikitastepanov/AndroidStudioProjects/MSemaphore/LookOutTests/app/src/main/res/layout&quot;,\n    &quot;project.structure.last.edited&quot;: &quot;SDK Location&quot;,\n    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\n    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;\n  },\n  &quot;keyToStringList&quot;: {\n    &quot;ExportApk.BuildVariants&quot;: [\n      &quot;release&quot;\n    ]\n  }\n}</component>\n  <component name=\"PsdUISettings\">\n    <option name=\"MODULE_TAB\" value=\"Properties\" />\n    <option name=\"LAST_EDITED_SIGNING_CONFIG\" value=\"debug\" />\n  </component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/app/src/main/res/layout\" />\n      <recent name=\"C:\\Users\\tenshi\\Documents\\Android Studio Projects\\UPTECH new firebase\\app\" />\n      <recent name=\"C:\\Users\\tenshi\\Documents\\Android Studio Projects\\UPTECH\\app\" />\n    </key>\n    <key name=\"android.template.1713956934\">\n      <recent name=\"com.example.uptechapp\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/app/src/main/res/drawable\" />\n      <recent name=\"C:\\Users\\tenshi\\Documents\\Android Studio Projects\\UPTECH\\app\\src\\main\\res\\font\" />\n    </key>\n    <key name=\"android.template.-966197719\">\n      <recent name=\"com.example.uptechapp\" />\n    </key>\n    <key name=\"ExtractSuperBase.RECENT_KEYS\">\n      <recent name=\"com.example.uptechapp.activity\" />\n    </key>\n    <key name=\"android.template.-279675594\">\n      <recent name=\"com.example.uptechapp.activity\" />\n    </key>\n    <key name=\"CopyClassDialog.RECENTS_KEY\">\n      <recent name=\"com.example.uptechapp.activity\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"app\" type=\"AndroidRunConfigurationType\" factoryName=\"Android App\">\n      <module name=\"UptechApp.app.main\" />\n      <option name=\"DEPLOY\" value=\"true\" />\n      <option name=\"DEPLOY_APK_FROM_BUNDLE\" value=\"false\" />\n      <option name=\"DEPLOY_AS_INSTANT\" value=\"false\" />\n      <option name=\"ARTIFACT_NAME\" value=\"\" />\n      <option name=\"PM_INSTALL_OPTIONS\" value=\"\" />\n      <option name=\"ALL_USERS\" value=\"false\" />\n      <option name=\"ALWAYS_INSTALL_WITH_PM\" value=\"false\" />\n      <option name=\"CLEAR_APP_STORAGE\" value=\"false\" />\n      <option name=\"DYNAMIC_FEATURES_DISABLED_LIST\" value=\"\" />\n      <option name=\"ACTIVITY_EXTRA_FLAGS\" value=\"\" />\n      <option name=\"MODE\" value=\"default_activity\" />\n      <option name=\"CLEAR_LOGCAT\" value=\"false\" />\n      <option name=\"SHOW_LOGCAT_AUTOMATICALLY\" value=\"false\" />\n      <option name=\"INSPECTION_WITHOUT_ACTIVITY_RESTART\" value=\"false\" />\n      <option name=\"TARGET_SELECTION_MODE\" value=\"DEVICE_AND_SNAPSHOT_COMBO_BOX\" />\n      <option name=\"SELECTED_CLOUD_MATRIX_CONFIGURATION_ID\" value=\"-1\" />\n      <option name=\"SELECTED_CLOUD_MATRIX_PROJECT_ID\" value=\"\" />\n      <option name=\"DEBUGGER_TYPE\" value=\"Auto\" />\n      <Auto>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n      </Auto>\n      <Hybrid>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n      </Hybrid>\n      <Java />\n      <Native>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n      </Native>\n      <Profilers>\n        <option name=\"ADVANCED_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_CPU_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_CPU_PROFILING_CONFIGURATION_NAME\" value=\"Java/Kotlin Method Sample (legacy)\" />\n        <option name=\"STARTUP_NATIVE_MEMORY_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"NATIVE_MEMORY_SAMPLE_RATE_BYTES\" value=\"2048\" />\n      </Profilers>\n      <option name=\"DEEP_LINK\" value=\"\" />\n      <option name=\"ACTIVITY_CLASS\" value=\"\" />\n      <option name=\"SEARCH_ACTIVITY_IN_GLOBAL_SCOPE\" value=\"false\" />\n      <option name=\"SKIP_ACTIVITY_VALIDATION\" value=\"false\" />\n      <method v=\"2\">\n        <option name=\"Android.Gradle.BeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"a90587e1-8657-482c-8a3a-9cf2e5df7389\" name=\"Changes\" comment=\"\" />\n      <created>1682423479164</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1682423479164</updated>\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"new main activity ui\">\n      <created>1683542297140</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1683542297140</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"перенос firebase\">\n      <created>1684037734715</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1684037734715</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"latlong work\">\n      <created>1684040618886</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1684040618886</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"map work\">\n      <created>1685112324975</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1685112324975</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"map work\">\n      <created>1685116707644</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1685116707644</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\"commit before final result\">\n      <created>1685147427410</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1685147427410</updated>\n    </task>\n    <task id=\"LOCAL-00007\" summary=\"final\">\n      <created>1685155631773</created>\n      <option name=\"number\" value=\"00007\" />\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1685155631773</updated>\n    </task>\n    <task id=\"LOCAL-00008\" summary=\"dialog\">\n      <created>1686140287734</created>\n      <option name=\"number\" value=\"00008\" />\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1686140287734</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"9\" />\n    <servers />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <ignored-roots>\n      <path value=\"$PROJECT_DIR$\" />\n    </ignored-roots>\n    <MESSAGE value=\"new main activity ui\" />\n    <MESSAGE value=\"перенос firebase\" />\n    <MESSAGE value=\"latlong work\" />\n    <MESSAGE value=\"map work\" />\n    <MESSAGE value=\"commit before final result\" />\n    <MESSAGE value=\"final\" />\n    <MESSAGE value=\"dialog\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"dialog\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/.idea/workspace.xml	(date 1686306623679)
+@@ -9,15 +9,33 @@
+     <option name="autoReloadType" value="NONE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="a90587e1-8657-482c-8a3a-9cf2e5df7389" name="Changes" comment="dialog">
++    <list default="true" id="a90587e1-8657-482c-8a3a-9cf2e5df7389" name="Changes" comment="dialog1">
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/learn1_en.gif" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/learn1_ru.gif" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/learn2_en.gif" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/learn2_ru.gif" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/learn3_en.gif" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/learn3_ru.gif" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/navEditor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/navEditor.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/CreateEmergencyFragment.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/EmergencyFeedFragment.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/MainActivityFragments.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/activity/SplashActivity.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/dao/MapService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/dao/MapService.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/uptechapp/dao/Database.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/create_news.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/create_news.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/map.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/map.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/news_feed.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/news_feed.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/round_corner_btn.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/round_corner_btn.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main_fragments.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main_fragments.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_splash.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_splash.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/bottom_navigation_view.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/bottom_navigation_view.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/dialog_layout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_layout.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_create_emergency.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_create_emergency.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/bottom_menu.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/bottom_menu.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -33,12 +51,12 @@
+   <component name="FileTemplateManagerImpl">
+     <option name="RECENT_TEMPLATES">
+       <list>
+-        <option value="resourceFile" />
+-        <option value="valueResourceFile" />
+         <option value="navigationResourceFile" />
+-        <option value="Class" />
+         <option value="Interface" />
++        <option value="resourceFile" />
++        <option value="Class" />
+         <option value="layoutResourceFile" />
++        <option value="valueResourceFile" />
+       </list>
+     </option>
+   </component>
+@@ -55,7 +73,6 @@
+       </GitPushTagMode>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+-    <option name="UPDATE_TYPE" value="REBASE" />
+   </component>
+   <component name="MarkdownSettingsMigration">
+     <option name="stateVersion" value="1" />
+@@ -69,29 +86,29 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;ApkExportedModule&quot;: &quot;UptechApp.app&quot;,
+-    &quot;ExportApk.ApkPathForUptechApp.app&quot;: &quot;C:\\Users\\tenshi\\Documents\\Android Studio Projects\\UPTECH new firebase\\app&quot;,
+-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+-    &quot;android-custom-viewC:/Users/tenshi/AppData/Local/Android/Sdk/sources/android-33/android/widget/ImageView.java_SELECTED&quot;: &quot;ImageView&quot;,
+-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+-    &quot;com.android.tools.idea.streaming.emulator.frame.visible&quot;: &quot;false&quot;,
+-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;/Users/nikitastepanov/AndroidStudioProjects/MSemaphore/LookOutTests/app/src/main/res/layout&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;SDK Location&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "ApkExportedModule": "UptechApp.app",
++    "ExportApk.ApkPathForUptechApp.app": "C:\\Users\\tenshi\\Documents\\Android Studio Projects\\UPTECH new firebase\\app",
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.cidr.known.project.marker": "true",
++    "android-custom-viewC:/Users/tenshi/AppData/Local/Android/Sdk/sources/android-33/android/widget/ImageView.java_SELECTED": "ImageView",
++    "cidr.known.project.marker": "true",
++    "com.android.tools.idea.streaming.emulator.frame.visible": "false",
++    "com.google.services.firebase.aqiPopupShown": "true",
++    "last_opened_file_path": "/Users/nikitastepanov/AndroidStudioProjects/MSemaphore/LookOutTests/app/src/main/res/layout",
++    "project.structure.last.edited": "SDK Location",
++    "project.structure.proportion": "0.17",
++    "project.structure.side.proportion": "0.2",
++    "settings.editor.selected.configurable": "preferences.pluginManager"
+   },
+-  &quot;keyToStringList&quot;: {
+-    &quot;ExportApk.BuildVariants&quot;: [
+-      &quot;release&quot;
++  "keyToStringList": {
++    "ExportApk.BuildVariants": [
++      "release"
+     ]
+   }
+-}</component>
++}]]></component>
+   <component name="PsdUISettings">
+     <option name="MODULE_TAB" value="Properties" />
+     <option name="LAST_EDITED_SIGNING_CONFIG" value="debug" />
+@@ -247,7 +264,14 @@
+       <option name="project" value="LOCAL" />
+       <updated>1686140287734</updated>
+     </task>
+-    <option name="localTasksCounter" value="9" />
++    <task id="LOCAL-00009" summary="dialog1">
++      <created>1686206531490</created>
++      <option name="number" value="00009" />
++      <option name="presentableId" value="LOCAL-00009" />
++      <option name="project" value="LOCAL" />
++      <updated>1686206531490</updated>
++    </task>
++    <option name="localTasksCounter" value="10" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -272,6 +296,7 @@
+     <MESSAGE value="commit before final result" />
+     <MESSAGE value="final" />
+     <MESSAGE value="dialog" />
+-    <option name="LAST_COMMIT_MESSAGE" value="dialog" />
++    <MESSAGE value="dialog1" />
++    <option name="LAST_COMMIT_MESSAGE" value="dialog1" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/navEditor.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"navEditor-manualLayoutAlgorithm2\">\n    <option name=\"myPositions\">\n      <map>\n        <entry key=\"nav_graph.xml\">\n          <value>\n            <LayoutPositions>\n              <option name=\"myPositions\">\n                <map>\n                  <entry key=\"fragment_create\">\n                    <value>\n                      <LayoutPositions>\n                        <option name=\"myPosition\">\n                          <Point>\n                            <option name=\"x\" value=\"274\" />\n                            <option name=\"y\" value=\"16\" />\n                          </Point>\n                        </option>\n                        <option name=\"myPositions\">\n                          <map>\n                            <entry key=\"action_fragment_create_to_fragment_emergency_feed\">\n                              <value>\n                                <LayoutPositions />\n                              </value>\n                            </entry>\n                          </map>\n                        </option>\n                      </LayoutPositions>\n                    </value>\n                  </entry>\n                  <entry key=\"fragment_emergency_feed\">\n                    <value>\n                      <LayoutPositions>\n                        <option name=\"myPosition\">\n                          <Point>\n                            <option name=\"x\" value=\"12\" />\n                            <option name=\"y\" value=\"12\" />\n                          </Point>\n                        </option>\n                        <option name=\"myPositions\">\n                          <map>\n                            <entry key=\"action_fragment_emergency_feed_to_fragment_create\">\n                              <value>\n                                <LayoutPositions />\n                              </value>\n                            </entry>\n                            <entry key=\"action_fragment_emergency_feed_to_fragment_map\">\n                              <value>\n                                <LayoutPositions />\n                              </value>\n                            </entry>\n                          </map>\n                        </option>\n                      </LayoutPositions>\n                    </value>\n                  </entry>\n                  <entry key=\"fragment_map\">\n                    <value>\n                      <LayoutPositions>\n                        <option name=\"myPosition\">\n                          <Point>\n                            <option name=\"x\" value=\"12\" />\n                            <option name=\"y\" value=\"368\" />\n                          </Point>\n                        </option>\n                      </LayoutPositions>\n                    </value>\n                  </entry>\n                </map>\n              </option>\n            </LayoutPositions>\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/navEditor.xml b/.idea/navEditor.xml
+--- a/.idea/navEditor.xml	(revision 9e702cbc6022d9020175c8e3b17a83adfdc1b44c)
++++ b/.idea/navEditor.xml	(date 1686220093342)
+@@ -13,13 +13,18 @@
+                       <LayoutPositions>
+                         <option name="myPosition">
+                           <Point>
+-                            <option name="x" value="274" />
+-                            <option name="y" value="16" />
++                            <option name="x" value="464" />
++                            <option name="y" value="45" />
+                           </Point>
+                         </option>
+                         <option name="myPositions">
+                           <map>
+                             <entry key="action_fragment_create_to_fragment_emergency_feed">
++                              <value>
++                                <LayoutPositions />
++                              </value>
++                            </entry>
++                            <entry key="action_fragment_create_to_fragment_map">
+                               <value>
+                                 <LayoutPositions />
+                               </value>
+@@ -34,8 +39,8 @@
+                       <LayoutPositions>
+                         <option name="myPosition">
+                           <Point>
+-                            <option name="x" value="12" />
+-                            <option name="y" value="12" />
++                            <option name="x" value="-136" />
++                            <option name="y" value="-123" />
+                           </Point>
+                         </option>
+                         <option name="myPositions">
+@@ -60,9 +65,23 @@
+                       <LayoutPositions>
+                         <option name="myPosition">
+                           <Point>
+-                            <option name="x" value="12" />
+-                            <option name="y" value="368" />
++                            <option name="x" value="-53" />
++                            <option name="y" value="432" />
+                           </Point>
++                        </option>
++                        <option name="myPositions">
++                          <map>
++                            <entry key="action_fragment_map_to_fragment_create">
++                              <value>
++                                <LayoutPositions />
++                              </value>
++                            </entry>
++                            <entry key="action_fragment_map_to_fragment_emergency_feed">
++                              <value>
++                                <LayoutPositions />
++                              </value>
++                            </entry>
++                          </map>
+                         </option>
+                       </LayoutPositions>
+                     </value>
