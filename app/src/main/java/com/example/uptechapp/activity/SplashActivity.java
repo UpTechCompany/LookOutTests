@@ -21,6 +21,8 @@ import android.view.ViewGroup;
 
 import com.example.uptechapp.R;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -37,6 +39,12 @@ public class SplashActivity extends AppCompatActivity {
 
         new Thread(() -> {
             updateLocale();
+            LocalDateTime gmtTime = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                gmtTime = LocalDateTime.now(ZoneOffset.UTC);
+            }
+            assert gmtTime != null;
+            Log.d("Nikaws", gmtTime.toString());
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {

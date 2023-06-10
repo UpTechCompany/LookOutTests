@@ -27,7 +27,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapFragment extends Fragment implements PickImage {
+public class MapFragment extends Fragment {
 
     private FragmentMapBinding binding;
 
@@ -40,6 +40,20 @@ public class MapFragment extends Fragment implements PickImage {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = FragmentMapBinding.inflate(getLayoutInflater());
+
+        PickImage pickImage = new PickImage() {
+            @Override
+            public void pickImage() {
+                ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
+                        new ActivityResultCallback<Uri>() {
+                            @Override
+                            public void onActivityResult(Uri uri) {
+                                mapService.setImage(uri);
+                            }
+                        });
+                mGetContent.launch("image/*");
+            }
+        };
 
         myEmergencyList = new ArrayList<Emergency>();
         Database.loadEmergencies(new CompleteListener() {
@@ -69,7 +83,7 @@ public class MapFragment extends Fragment implements PickImage {
                     }
                 });
 
-        mapService = new MapService(getContext(), this, getActivity(), mGetContent);
+        mapService = new MapService(getContext(), this, getActivity(), mGetContent, pickImage);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         mapFragment.getMapAsync(mapService);
 
@@ -88,15 +102,4 @@ public class MapFragment extends Fragment implements PickImage {
         binding = null;
     }
 
-    @Override
-    public void pickImage() {
-        ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
-                new ActivityResultCallback<Uri>() {
-                    @Override
-                    public void onActivityResult(Uri uri) {
-                        mapService.setImage(uri);
-                    }
-                });
-        mGetContent.launch("image/*");
-    }
 }

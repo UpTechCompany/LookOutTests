@@ -103,7 +103,7 @@ public class EmergencyFeedFragment extends Fragment {
         emergencyFeed.setLayoutManager(layoutManager);
 
         myEmergencyList = new ArrayList<Emergency>();
-        adapter = new EmergencyAdapter(myEmergencyList, getContext());
+        adapter = new EmergencyAdapter(myEmergencyList, getContext(), getActivity());
 
         emergencyFeed.setAdapter(adapter);
 

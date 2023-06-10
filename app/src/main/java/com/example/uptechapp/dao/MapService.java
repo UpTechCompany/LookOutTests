@@ -26,6 +26,7 @@ import androidx.navigation.Navigation;
 
 import com.example.uptechapp.R;
 import com.example.uptechapp.api.EmergencyApiService;
+import com.example.uptechapp.api.PickImage;
 import com.example.uptechapp.model.Emergency;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -56,8 +57,6 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
     private static final int PICK_IMAGE_REQUEST = 1;
     private List<Emergency> myEmergencyList;
     private Uri uriImage;
-    private boolean isButtonClicked = false;
-    private static final long BUTTON_CLICK_DELAY = 5000;
     private StorageReference storageReference;
     private ActivityResultLauncher<String> mGetContent;
 
@@ -66,8 +65,10 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
     private TextView editTextDesc;
     private Button btnShare;
     private ImageView emergencyImg;
+    private PickImage pickImage;
+    private LatLng location;
 
-    public MapService(Context context, LifecycleOwner lifecycleOwner, Activity activity, ActivityResultLauncher<String> mGetContent) {
+    public MapService(Context context, LifecycleOwner lifecycleOwner, Activity activity, ActivityResultLauncher<String> mGetContent, PickImage pickImage) {
         this.context = context;
         this.lifecycleOwner = lifecycleOwner;
         myEmergencyList = MyViewModel.getInstance().getEmergencyLiveData().getValue();
@@ -75,6 +76,7 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
         this.activity = activity;
         storageReference = FirebaseStorage.getInstance().getReference("Emergency");
         this.mGetContent = mGetContent;
+        this.pickImage = pickImage;
     }
 
 
@@ -86,6 +88,17 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
 
     @Override
     public void onMapLongClick(@NonNull LatLng latLng) {
+//        Toast.makeText(context, "" + latLng.latitude + " "
+//                + latLng.longitude, Toast.LENGTH_SHORT).show();
+//
+//        FragmentManager fragmentManager = getSupportedManager().findFragmentById(R.id.fragmentContainerView);
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        Fragment fragment = new CreateEmergencyFragment();
+//        CreateEmergencyFragment.setLatitude(latLng.latitude);
+//        CreateEmergencyFragment.setLongitude(latLng.longitude);
+//        fragmentTransaction.add(R.id.fragmentContainerView, fragment);
+//        fragmentTransaction.commit();
+        location = latLng;
 
         Dialog dialog = new Dialog(context);
 
@@ -115,10 +128,29 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
             }
         });
 
+//        Log.d("Nike", "Ok");
+//        Dialog dialog = new Dialog(context);
+//        dialog.setContentView(R.layout.fragment_create_emergency);
+//        dialog.show();
+//        Log.d("Nike", "Ok");
+//        FragmentContainerView fragmentContainerView = dialog.findViewById(R.id.fragmentContainerView);
+//        CreateEmergencyFragment createEmergencyFragment = new CreateEmergencyFragment();
+//        Log.d("Nike", "Ok");
+////        FragmentManager fragmentManager = createEmergencyFragment.getChildFragmentManager();
+////        Log.d("Nike", "Ok");
+////        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+////        Log.d("Nike", "Ok");
+////        fragmentTransaction.replace(fragmentContainerView.getId(), createEmergencyFragment);
+////        fragmentTransaction.addToBackStack(null);
+////        Log.d("Nike", "Ok");
+////        fragmentTransaction.commit();
+////        Log.d("Nike", "Ok");
+
     }
 
     private void openFileChooser() {
         mGetContent.launch("image/*");
+//        pickImage.pickImage();
     }
 
     public void setImage(Uri uri) {
@@ -158,8 +190,8 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
                                     editTextDesc.getText().toString(),
                                     Calendar.getInstance().getTime().toString(),
                                     url,
-                                    11,
-                                    22
+                                    location.latitude,
+                                    location.longitude
                             );
 
                             EmergencyApiService.getInstance().postJson(emergency).enqueue(new Callback<Emergency>() {
@@ -237,7 +269,7 @@ public class MapService implements OnMapReadyCallback, GoogleMap.OnMapClickListe
 //
 //            return false;
 //        });
-            final Observer<List<Emergency>> myObserver = new Observer<List<Emergency>>() {
+        final Observer<List<Emergency>> myObserver = new Observer<List<Emergency>>() {
             @Override
             public void onChanged(List<Emergency> emergencies) {
                 Log.d("NIKITA", "INOF");
